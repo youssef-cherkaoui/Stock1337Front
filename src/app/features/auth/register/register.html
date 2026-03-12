@@ -1,0 +1,53 @@
+<div class="auth-container">
+  <div class="bg-animation">
+    <div class="cube"></div>
+    <div class="cube"></div>
+  </div>
+
+  <div class="auth-card" [@fadeInUp]>
+    <div class="auth-header">
+      <h1 class="logo">STOCK<span>1337</span></h1>
+      <p>Join our inventory network</p>
+    </div>
+
+    <form (submit)="onRegister()" #regForm="ngForm" class="auth-form">
+      <div class="input-group">
+        <label>Full Name</label>
+        <input
+          type="text"
+          name="name"
+          [(ngModel)]="registerRequest.Name"
+          placeholder="e.g. Youssef Cherkaoui"
+          required>
+      </div>
+
+      <div class="input-group">
+        <label>Email Address</label>
+        <input
+          type="email"
+          name="email"
+          [(ngModel)]="registerRequest.Email"
+          placeholder="name@company.com"
+          required>
+      </div>
+
+      <div class="input-group">
+        <label>Password</label>
+        <input
+          type="password"
+          name="password"
+          [(ngModel)]="registerRequest.Password"
+          placeholder="••••••••"
+          required>
+      </div>
+
+      <button type="submit" class="btn-submit" [disabled]="!regForm.valid">
+        <span>CREATE ACCOUNT</span>
+      </button>
+
+      <div class="auth-footer">
+        <p>Already have an account? <a routerLink="/login">Sign In</a></p>
+      </div>
+    </form>
+  </div>
+</div>
