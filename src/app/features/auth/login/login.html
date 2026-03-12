@@ -1,0 +1,17 @@
+<p>login works!</p>
+<div class="login-wrapper">
+  <div class="login-box" [@fadeInUp]>
+    <div class="logo">
+      <h1>STOCK<span>1337</span></h1>
+    </div>
+    <form (submit)="onLogin()">
+      <div class="input-group">
+        <input type="email" name="email" [(ngModel)]="authRequest.email" placeholder="Email" required>
+      </div>
+      <div class="input-group">
+        <input type="password" name="password" [(ngModel)]="authRequest.password" placeholder="Password" required>
+      </div>
+      <button type="submit" class="btn-login">SIGN IN</button>
+    </form>
+  </div>
+</div>
