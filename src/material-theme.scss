@@ -1,0 +1,20 @@
+@use '@angular/material' as mat;
+html {
+  height: 100%;
+  @include mat.theme(
+      (
+        color: (
+          primary: mat.$azure-palette,
+          tertiary: mat.$blue-palette,
+        ),
+        typography: Roboto,
+        density: 0,
+      )
+  );
+}
+body {
+  color-scheme: dark;  /* ← bdl light b dark */
+  margin: 0;
+  height: 100%;
+  /* ← ḥyyid background-color o color o font */
+}
