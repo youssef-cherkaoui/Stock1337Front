@@ -1,16 +1,24 @@
 import { Component, OnInit, OnDestroy, ElementRef, ViewChild, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ThreeJsService } from '../../services/three-js.service';
+import { LoginComponent } from '../../features/auth/login/login';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule,  LoginComponent],
   templateUrl: './home.html',
   styleUrls: ['./home.css']
 })
 export class HomeComponent implements OnInit, OnDestroy {
   @ViewChild('canvasContainer', { static: true }) canvasContainer!: ElementRef;
+
+  // Auth
+  showAuthModal = false;
+  authMode: 'login' | 'register' = 'login';
+  isLoggedIn = false;
+  userName = '';
+  userRole: 'USER' | 'ADMIN' | '' = '';
 
   // Stats
   stats = [
@@ -57,14 +65,56 @@ export class HomeComponent implements OnInit, OnDestroy {
     { name: 'Administration', value: 8 },
   ];
 
+  get userInitials(): string {
+    return this.userName.split(' ').map(n => n[0]).join('').toUpperCase();
+  }
+
   constructor(private threeJsService: ThreeJsService) {}
 
   ngOnInit(): void {
     this.threeJsService.init(this.canvasContainer);
+    this.checkAuth();
   }
 
   ngOnDestroy(): void {
     this.threeJsService.destroy();
+  }
+
+  checkAuth(): void {
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+    if (token && user) {
+      try {
+        const userData = JSON.parse(user);
+        this.isLoggedIn = true;
+        this.userName = userData.name;
+        this.userRole = userData.role;
+      } catch (e) {
+        this.logout();
+      }
+    }
+  }
+
+  openAuth(mode: 'login' | 'register'): void {
+    this.authMode = mode;
+    this.showAuthModal = true;
+  }
+
+  closeAuth(): void {
+    this.showAuthModal = false;
+  }
+
+  onAuthSuccess(): void {
+    this.closeAuth();
+    this.checkAuth();
+  }
+
+  logout(): void {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    this.isLoggedIn = false;
+    this.userName = '';
+    this.userRole = '';
   }
 
   scrollToSection(sectionId: string): void {

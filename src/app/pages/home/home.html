@@ -3,298 +3,328 @@
 
 <!-- Fixed Navbar -->
 <nav class="fixed top-0 left-0 w-full z-50 px-8 py-6 transition-all duration-300" id="navbar">
-    <div class="max-w-[1920px] mx-auto flex justify-between items-center glass-nav rounded-full px-8 py-4">
-        <div class="flex items-center gap-4 cursor-pointer group" (click)="scrollToSection('hero')">
-            <div class="w-14 h-14 bg-gradient-to-br from-emerald-400 via-cyan-400 to-blue-500 rounded-2xl flex items-center justify-center font-black text-black text-2xl transform group-hover:rotate-12 transition-transform duration-500">
-                1337
-            </div>
-            <div>
-                <span class="text-2xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">STOCK1337</span>
-                <div class="text-xs font-medium text-emerald-400 tracking-widest uppercase">Inventory System</div>
-            </div>
-        </div>
+  <div class="max-w-[1920px] mx-auto flex justify-between items-center glass-nav rounded-full px-8 py-4">
 
-        <div class="hidden lg:flex items-center gap-10">
-            <button (click)="scrollToSection('dashboard')" class="nav-link text-sm font-bold tracking-widest uppercase text-gray-300 hover:text-white transition-all">Dashboard</button>
-            <button (click)="scrollToSection('departements')" class="nav-link text-sm font-bold tracking-widest uppercase text-gray-300 hover:text-white transition-all">Départements</button>
-            <button (click)="scrollToSection('equipements')" class="nav-link text-sm font-bold tracking-widest uppercase text-gray-300 hover:text-white transition-all">Équipements</button>
-            <button (click)="scrollToSection('analytics')" class="nav-link text-sm font-bold tracking-widest uppercase text-gray-300 hover:text-white transition-all">Analytics</button>
-        </div>
-
-        <div class="flex items-center gap-4">
-            <div class="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-xs font-mono text-emerald-400">
-                <span class="w-2 h-2 bg-emerald-400 rounded-full inline-block mr-2 animate-pulse"></span>
-                LIVE DATA
-            </div>
-        </div>
+    <!-- Logo -->
+    <div class="flex items-center gap-4 cursor-pointer group" (click)="scrollToSection('hero')">
+      <div class="w-14 h-14 bg-gradient-to-br from-emerald-400 via-cyan-400 to-blue-500 rounded-2xl flex items-center justify-center font-black text-black text-2xl transform group-hover:rotate-12 transition-transform duration-500">
+        1337
+      </div>
+      <div>
+        <span class="text-2xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">STOCK1337</span>
+        <div class="text-xs font-medium text-emerald-400 tracking-widest uppercase">Inventory System</div>
+      </div>
     </div>
+
+    <!-- Navigation -->
+    <div class="hidden lg:flex items-center gap-10">
+      <button (click)="scrollToSection('dashboard')" class="nav-link text-sm font-bold tracking-widest uppercase text-gray-300 hover:text-white transition-all">Dashboard</button>
+      <button (click)="scrollToSection('departements')" class="nav-link text-sm font-bold tracking-widest uppercase text-gray-300 hover:text-white transition-all">Départements</button>
+      <button (click)="scrollToSection('equipements')" class="nav-link text-sm font-bold tracking-widest uppercase text-gray-300 hover:text-white transition-all">Équipements</button>
+      <button (click)="scrollToSection('analytics')" class="nav-link text-sm font-bold tracking-widest uppercase text-gray-300 hover:text-white transition-all">Analytics</button>
+    </div>
+
+    <!-- Auth Buttons -->
+    <div class="flex items-center gap-4">
+      <!-- Not Logged In -->
+      <ng-container *ngIf="!isLoggedIn">
+        <button (click)="openAuth('login')" class="text-sm font-bold tracking-widest uppercase text-gray-300 hover:text-white transition-all">
+          Connexion
+        </button>
+        <button (click)="openAuth('register')" class="glow-button bg-gradient-to-r from-emerald-500 to-cyan-500 text-black font-bold px-6 py-3 rounded-full text-sm hover:shadow-lg transition-all transform hover:scale-105">
+          Inscription
+        </button>
+      </ng-container>
+
+      <!-- Logged In -->
+      <ng-container *ngIf="isLoggedIn">
+        <div class="flex items-center gap-3 glass-pill px-4 py-2 rounded-full">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center text-black font-bold text-sm">
+            {{ userInitials }}
+          </div>
+          <div class="flex flex-col">
+            <span class="text-sm font-medium">{{ userName }}</span>
+            <span class="text-[10px] text-emerald-400 uppercase tracking-wider">{{ userRole }}</span>
+          </div>
+        </div>
+        <button (click)="logout()" class="text-sm font-bold tracking-widest uppercase text-rose-400 hover:text-rose-300 transition-all">
+          Déconnexion
+        </button>
+      </ng-container>
+    </div>
+  </div>
 </nav>
 
 <!-- SECTION 1: HERO -->
 <section id="hero" class="relative z-10 min-h-screen flex items-center justify-center px-8 pt-32">
-    <div class="max-w-[1920px] mx-auto w-full">
+  <div class="max-w-[1920px] mx-auto w-full">
 
-        <!-- Cinematic Header -->
-        <div class="text-center mb-20">
-            <div class="inline-flex items-center gap-3 glass-pill px-6 py-3 rounded-full mb-8 animate-float">
-                <span class="w-3 h-3 bg-emerald-400 rounded-full animate-ping"></span>
-                <span class="text-sm font-bold tracking-[0.3em] uppercase text-emerald-400">Système de Gestion 1337</span>
-            </div>
+    <!-- Cinematic Header -->
+    <div class="text-center mb-20">
+      <div class="inline-flex items-center gap-3 glass-pill px-6 py-3 rounded-full mb-8 animate-float">
+        <span class="w-3 h-3 bg-emerald-400 rounded-full animate-ping"></span>
+        <span class="text-sm font-bold tracking-[0.3em] uppercase text-emerald-400">Système de Gestion 1337</span>
+      </div>
 
-            <h1 class="text-[clamp(4rem,12vw,10rem)] font-black leading-[0.9] tracking-tighter mb-8">
-                <span class="bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-white/40">Gestion</span>
-                <br>
-                <span class="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 animate-gradient">Intelligente</span>
-            </h1>
+      <h1 class="text-[clamp(4rem,12vw,10rem)] font-black leading-[0.9] tracking-tighter mb-8">
+        <span class="bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-white/40">Gestion</span>
+        <br>
+        <span class="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 animate-gradient">Intelligente</span>
+      </h1>
 
-            <p class="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto font-light leading-relaxed mb-12">
-                Plateforme next-gen de gestion d'inventaire.
-                <span class="text-white font-medium">Technologie 4K</span>,
-                <span class="text-white font-medium">Temps réel</span>,
-                <span class="text-white font-medium">Zero latency</span>.
-            </p>
+      <p class="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto font-light leading-relaxed mb-12">
+        Plateforme next-gen de gestion d'inventaire.
+        <span class="text-white font-medium">Technologie 4K</span>,
+        <span class="text-white font-medium">Temps réel</span>,
+        <span class="text-white font-medium">Zero latency</span>.
+      </p>
 
-            <!-- Scroll Indicator -->
-            <button (click)="scrollToSection('dashboard')" class="animate-bounce">
-                <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-                </svg>
-            </button>
-        </div>
+      <!-- Scroll Indicator -->
+      <button (click)="scrollToSection('dashboard')" class="animate-bounce">
+        <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+        </svg>
+      </button>
     </div>
+  </div>
 </section>
 
 <!-- SECTION 2: DASHBOARD -->
 <section id="dashboard" class="relative z-10 min-h-screen flex items-center px-8 py-20">
-    <div class="max-w-[1920px] mx-auto w-full">
-        <div class="mb-12">
-            <h2 class="text-5xl md:text-7xl font-black mb-4 bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-400">
-                Dashboard
-            </h2>
-            <p class="text-xl text-gray-400">Vue d'ensemble en temps réel</p>
-        </div>
-
-        <!-- 4K Stats Grid -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
-            <div *ngFor="let stat of stats; let i = index"
-                 class="glass-card p-8 rounded-3xl border border-white/5 hover:border-emerald-500/30 transition-all duration-500 group"
-                 [style.animation-delay]="i * 100 + 'ms'">
-                <div class="text-5xl md:text-6xl font-black mb-2 bg-clip-text text-transparent bg-gradient-to-br"
-                     [class]="stat.gradient">
-                    {{ stat.value }}
-                </div>
-                <div class="text-sm font-bold tracking-widest uppercase text-gray-500 group-hover:text-gray-300 transition-colors">
-                    {{ stat.label }}
-                </div>
-                <div class="mt-4 h-1 bg-white/10 rounded-full overflow-hidden">
-                    <div class="h-full bg-gradient-to-r from-emerald-400 to-cyan-400 rounded-full transform origin-left group-hover:scale-x-100 transition-transform duration-700"
-                         [style.width.%]="stat.percentage"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Live Activity -->
-        <div class="glass-card p-8 rounded-3xl border border-white/5">
-            <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
-                <span class="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></span>
-                Activité en Direct
-            </h3>
-            <div class="space-y-4">
-                <div *ngFor="let activity of activities"
-                     class="flex justify-between items-center p-4 bg-white/5 rounded-2xl hover:bg-white/10 transition-colors">
-                    <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400">
-                            {{ activity.icon }}
-                        </div>
-                        <div>
-                            <div class="font-bold">{{ activity.title }}</div>
-                            <div class="text-sm text-gray-400">{{ activity.desc }}</div>
-                        </div>
-                    </div>
-                    <div class="text-sm text-gray-500 font-mono">{{ activity.time }}</div>
-                </div>
-            </div>
-        </div>
+  <div class="max-w-[1920px] mx-auto w-full">
+    <div class="mb-12">
+      <h2 class="text-5xl md:text-7xl font-black mb-4 bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-400">
+        Dashboard
+      </h2>
+      <p class="text-xl text-gray-400">Vue d'ensemble en temps réel</p>
     </div>
+
+    <!-- 4K Stats Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+      <div *ngFor="let stat of stats; let i = index"
+           class="glass-card p-8 rounded-3xl border border-white/5 hover:border-emerald-500/30 transition-all duration-500 group"
+           [style.animation-delay]="i * 100 + 'ms'">
+        <div class="text-5xl md:text-6xl font-black mb-2 bg-clip-text text-transparent bg-gradient-to-br"
+             [class]="stat.gradient">
+          {{ stat.value }}
+        </div>
+        <div class="text-sm font-bold tracking-widest uppercase text-gray-500 group-hover:text-gray-300 transition-colors">
+          {{ stat.label }}
+        </div>
+        <div class="mt-4 h-1 bg-white/10 rounded-full overflow-hidden">
+          <div class="h-full bg-gradient-to-r from-emerald-400 to-cyan-400 rounded-full transform origin-left group-hover:scale-x-100 transition-transform duration-700"
+               [style.width.%]="stat.percentage"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Activity -->
+    <div class="glass-card p-8 rounded-3xl border border-white/5">
+      <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
+        <span class="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></span>
+        Activité en Direct
+      </h3>
+      <div class="space-y-4">
+        <div *ngFor="let activity of activities"
+             class="flex justify-between items-center p-4 bg-white/5 rounded-2xl hover:bg-white/10 transition-colors">
+          <div class="flex items-center gap-4">
+            <div class="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400">
+              {{ activity.icon }}
+            </div>
+            <div>
+              <div class="font-bold">{{ activity.title }}</div>
+              <div class="text-sm text-gray-400">{{ activity.desc }}</div>
+            </div>
+          </div>
+          <div class="text-sm text-gray-500 font-mono">{{ activity.time }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- SECTION 3: DÉPARTEMENTS -->
 <section id="departements" class="relative z-10 min-h-screen flex items-center px-8 py-20">
-    <div class="max-w-[1920px] mx-auto w-full">
-        <div class="mb-12">
-            <h2 class="text-5xl md:text-7xl font-black mb-4 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">
-                Départements
-            </h2>
-            <p class="text-xl text-gray-400">18 espaces de travail équipés</p>
-        </div>
-
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div *ngFor="let dept of departements; let i = index"
-                 class="glass-card group relative overflow-hidden rounded-3xl p-8 border border-white/5 hover:border-white/20 transition-all duration-500"
-                 [style.animation-delay]="i * 150 + 'ms'">
-
-                <div class="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-20 transition-opacity duration-500"
-                     [class]="dept.glow"></div>
-
-                <div class="relative z-10">
-                    <div class="flex justify-between items-start mb-6">
-                        <div class="w-16 h-16 rounded-2xl flex items-center justify-center font-black text-2xl text-black transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500"
-                             [class]="dept.bg">
-                            {{ dept.initiale }}
-                        </div>
-                        <div class="text-right">
-                            <div class="text-3xl font-black text-white">{{ dept.pcCount }}</div>
-                            <div class="text-xs font-bold tracking-widest uppercase text-gray-500">PCs</div>
-                        </div>
-                    </div>
-
-                    <h3 class="text-2xl font-bold mb-2 group-hover:text-emerald-400 transition-colors">{{ dept.nom }}</h3>
-                    <p class="text-gray-400 mb-6 font-light">{{ dept.description }}</p>
-
-                    <div class="flex gap-3">
-                        <div class="flex-1 glass-pill px-4 py-2 rounded-xl text-center">
-                            <div class="text-emerald-400 font-bold">{{ dept.dispo }}</div>
-                            <div class="text-[10px] uppercase tracking-wider text-gray-500">Dispo</div>
-                        </div>
-                        <div class="flex-1 glass-pill px-4 py-2 rounded-xl text-center">
-                            <div class="text-amber-400 font-bold">{{ dept.occupe }}</div>
-                            <div class="text-[10px] uppercase tracking-wider text-gray-500">Occupé</div>
-                        </div>
-                        <div class="flex-1 glass-pill px-4 py-2 rounded-xl text-center">
-                            <div class="text-rose-400 font-bold">{{ dept.panne }}</div>
-                            <div class="text-[10px] uppercase tracking-wider text-gray-500">Panne</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <div class="max-w-[1920px] mx-auto w-full">
+    <div class="mb-12">
+      <h2 class="text-5xl md:text-7xl font-black mb-4 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">
+        Départements
+      </h2>
+      <p class="text-xl text-gray-400">18 espaces de travail équipés</p>
     </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div *ngFor="let dept of departements; let i = index"
+           class="glass-card group relative overflow-hidden rounded-3xl p-8 border border-white/5 hover:border-white/20 transition-all duration-500"
+           [style.animation-delay]="i * 150 + 'ms'">
+
+        <div class="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-20 transition-opacity duration-500"
+             [class]="dept.glow"></div>
+
+        <div class="relative z-10">
+          <div class="flex justify-between items-start mb-6">
+            <div class="w-16 h-16 rounded-2xl flex items-center justify-center font-black text-2xl text-black transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500"
+                 [class]="dept.bg">
+              {{ dept.initiale }}
+            </div>
+            <div class="text-right">
+              <div class="text-3xl font-black text-white">{{ dept.pcCount }}</div>
+              <div class="text-xs font-bold tracking-widest uppercase text-gray-500">PCs</div>
+            </div>
+          </div>
+
+          <h3 class="text-2xl font-bold mb-2 group-hover:text-emerald-400 transition-colors">{{ dept.nom }}</h3>
+          <p class="text-gray-400 mb-6 font-light">{{ dept.description }}</p>
+
+          <div class="flex gap-3">
+            <div class="flex-1 glass-pill px-4 py-2 rounded-xl text-center">
+              <div class="text-emerald-400 font-bold">{{ dept.dispo }}</div>
+              <div class="text-[10px] uppercase tracking-wider text-gray-500">Dispo</div>
+            </div>
+            <div class="flex-1 glass-pill px-4 py-2 rounded-xl text-center">
+              <div class="text-amber-400 font-bold">{{ dept.occupe }}</div>
+              <div class="text-[10px] uppercase tracking-wider text-gray-500">Occupé</div>
+            </div>
+            <div class="flex-1 glass-pill px-4 py-2 rounded-xl text-center">
+              <div class="text-rose-400 font-bold">{{ dept.panne }}</div>
+              <div class="text-[10px] uppercase tracking-wider text-gray-500">Panne</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- SECTION 4: ÉQUIPEMENTS -->
 <section id="equipements" class="relative z-10 min-h-screen flex items-center px-8 py-20">
-    <div class="max-w-[1920px] mx-auto w-full">
-        <div class="mb-12">
-            <h2 class="text-5xl md:text-7xl font-black mb-4 bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-purple-500">
-                Équipements
-            </h2>
-            <p class="text-xl text-gray-400">Inventaire complet du matériel</p>
-        </div>
+  <div class="max-w-[1920px] mx-auto w-full">
+    <div class="mb-12">
+      <h2 class="text-5xl md:text-7xl font-black mb-4 bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-purple-500">
+        Équipements
+      </h2>
+      <p class="text-xl text-gray-400">Inventaire complet du matériel</p>
+    </div>
 
-        <!-- Search & Filter -->
-        <div class="glass-card p-6 rounded-3xl mb-8 flex gap-4">
-            <div class="flex-1 relative">
-                <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
-                <input type="text" placeholder="Rechercher un équipement..."
-                       class="w-full bg-black/30 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-white focus:border-emerald-500/50 focus:outline-none transition-colors">
-            </div>
-            <select class="bg-black/30 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-emerald-500/50 focus:outline-none">
-                <option>Tous les types</option>
-                <option>PC</option>
-                <option>Écran</option>
-                <option>Périphérique</option>
-            </select>
-        </div>
+    <!-- Search & Filter -->
+    <div class="glass-card p-6 rounded-3xl mb-8 flex gap-4">
+      <div class="flex-1 relative">
+        <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+        <input type="text" placeholder="Rechercher un équipement..."
+               class="w-full bg-black/30 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-white focus:border-emerald-500/50 focus:outline-none transition-colors">
+      </div>
+      <select class="bg-black/30 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-emerald-500/50 focus:outline-none">
+        <option>Tous les types</option>
+        <option>PC</option>
+        <option>Écran</option>
+        <option>Périphérique</option>
+      </select>
+    </div>
 
-        <!-- Equipment Table -->
-        <div class="glass-card rounded-3xl overflow-hidden border border-white/5">
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead class="bg-white/5">
-                    <tr>
-                        <th class="p-6 text-left text-sm font-bold tracking-widest uppercase text-gray-400">ID</th>
-                        <th class="p-6 text-left text-sm font-bold tracking-widest uppercase text-gray-400">Type</th>
-                        <th class="p-6 text-left text-sm font-bold tracking-widest uppercase text-gray-400">Modèle</th>
-                        <th class="p-6 text-left text-sm font-bold tracking-widest uppercase text-gray-400">Département</th>
-                        <th class="p-6 text-left text-sm font-bold tracking-widest uppercase text-gray-400">Statut</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr *ngFor="let eq of equipements"
-                        class="border-t border-white/5 hover:bg-white/5 transition-colors">
-                        <td class="p-6 font-mono text-emerald-400">{{ eq.id }}</td>
-                        <td class="p-6">
-                            <div class="flex items-center gap-3">
-                                <span class="text-2xl">{{ eq.icon }}</span>
-                                <span class="font-medium">{{ eq.type }}</span>
-                            </div>
-                        </td>
-                        <td class="p-6 text-gray-300">{{ eq.modele }}</td>
-                        <td class="p-6">
-                            <span class="px-3 py-1 rounded-full bg-white/5 text-sm">{{ eq.departement }}</span>
-                        </td>
-                        <td class="p-6">
+    <!-- Equipment Table -->
+    <div class="glass-card rounded-3xl overflow-hidden border border-white/5">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-white/5">
+          <tr>
+            <th class="p-6 text-left text-sm font-bold tracking-widest uppercase text-gray-400">ID</th>
+            <th class="p-6 text-left text-sm font-bold tracking-widest uppercase text-gray-400">Type</th>
+            <th class="p-6 text-left text-sm font-bold tracking-widest uppercase text-gray-400">Modèle</th>
+            <th class="p-6 text-left text-sm font-bold tracking-widest uppercase text-gray-400">Département</th>
+            <th class="p-6 text-left text-sm font-bold tracking-widest uppercase text-gray-400">Statut</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let eq of equipements"
+              class="border-t border-white/5 hover:bg-white/5 transition-colors">
+            <td class="p-6 font-mono text-emerald-400">{{ eq.id }}</td>
+            <td class="p-6">
+              <div class="flex items-center gap-3">
+                <span class="text-2xl">{{ eq.icon }}</span>
+                <span class="font-medium">{{ eq.type }}</span>
+              </div>
+            </td>
+            <td class="p-6 text-gray-300">{{ eq.modele }}</td>
+            <td class="p-6">
+              <span class="px-3 py-1 rounded-full bg-white/5 text-sm">{{ eq.departement }}</span>
+            </td>
+            <td class="p-6">
                 <span class="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider"
                       [class]="eq.statut === 'Disponible' ? 'bg-emerald-500/20 text-emerald-400' :
                                eq.statut === 'En utilisation' ? 'bg-amber-500/20 text-amber-400' :
                                'bg-rose-500/20 text-rose-400'">
                   {{ eq.statut }}
                 </span>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
+  </div>
 </section>
 
 <!-- SECTION 5: ANALYTICS -->
 <section id="analytics" class="relative z-10 min-h-screen flex items-center px-8 py-20">
-    <div class="max-w-[1920px] mx-auto w-full">
-        <div class="mb-12">
-            <h2 class="text-5xl md:text-7xl font-black mb-4 bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-orange-500">
-                Analytics
-            </h2>
-            <p class="text-xl text-gray-400">Statistiques et rapports détaillés</p>
-        </div>
-
-        <div class="grid md:grid-cols-2 gap-8">
-            <!-- Chart 1 -->
-            <div class="glass-card p-8 rounded-3xl border border-white/5">
-                <h3 class="text-2xl font-bold mb-8">Répartition par Département</h3>
-                <div class="space-y-6">
-                    <div *ngFor="let item of analytics" class="relative">
-                        <div class="flex justify-between mb-2">
-                            <span class="font-medium">{{ item.name }}</span>
-                            <span class="text-emerald-400 font-bold">{{ item.value }}%</span>
-                        </div>
-                        <div class="h-3 bg-white/10 rounded-full overflow-hidden">
-                            <div class="h-full rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400 transition-all duration-1000"
-                                 [style.width.%]="item.value"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Chart 2 -->
-            <div class="glass-card p-8 rounded-3xl border border-white/5">
-                <h3 class="text-2xl font-bold mb-8">Statuts Global</h3>
-                <div class="grid grid-cols-3 gap-4">
-                    <div class="text-center p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
-                        <div class="text-4xl font-black text-emerald-400 mb-2">68%</div>
-                        <div class="text-xs uppercase tracking-wider text-gray-400">Disponible</div>
-                    </div>
-                    <div class="text-center p-6 rounded-2xl bg-amber-500/10 border border-amber-500/20">
-                        <div class="text-4xl font-black text-amber-400 mb-2">23%</div>
-                        <div class="text-xs uppercase tracking-wider text-gray-400">Utilisé</div>
-                    </div>
-                    <div class="text-center p-6 rounded-2xl bg-rose-500/10 border border-rose-500/20">
-                        <div class="text-4xl font-black text-rose-400 mb-2">9%</div>
-                        <div class="text-xs uppercase tracking-wider text-gray-400">Maintenance</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <div class="max-w-[1920px] mx-auto w-full">
+    <div class="mb-12">
+      <h2 class="text-5xl md:text-7xl font-black mb-4 bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-orange-500">
+        Analytics
+      </h2>
+      <p class="text-xl text-gray-400">Statistiques et rapports détaillés</p>
     </div>
+
+    <div class="grid md:grid-cols-2 gap-8">
+      <!-- Chart 1 -->
+      <div class="glass-card p-8 rounded-3xl border border-white/5">
+        <h3 class="text-2xl font-bold mb-8">Répartition par Département</h3>
+        <div class="space-y-6">
+          <div *ngFor="let item of analytics" class="relative">
+            <div class="flex justify-between mb-2">
+              <span class="font-medium">{{ item.name }}</span>
+              <span class="text-emerald-400 font-bold">{{ item.value }}%</span>
+            </div>
+            <div class="h-3 bg-white/10 rounded-full overflow-hidden">
+              <div class="h-full rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400 transition-all duration-1000"
+                   [style.width.%]="item.value"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart 2 -->
+      <div class="glass-card p-8 rounded-3xl border border-white/5">
+        <h3 class="text-2xl font-bold mb-8">Statuts Global</h3>
+        <div class="grid grid-cols-3 gap-4">
+          <div class="text-center p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
+            <div class="text-4xl font-black text-emerald-400 mb-2">68%</div>
+            <div class="text-xs uppercase tracking-wider text-gray-400">Disponible</div>
+          </div>
+          <div class="text-center p-6 rounded-2xl bg-amber-500/10 border border-amber-500/20">
+            <div class="text-4xl font-black text-amber-400 mb-2">23%</div>
+            <div class="text-xs uppercase tracking-wider text-gray-400">Utilisé</div>
+          </div>
+          <div class="text-center p-6 rounded-2xl bg-rose-500/10 border border-rose-500/20">
+            <div class="text-4xl font-black text-rose-400 mb-2">9%</div>
+            <div class="text-xs uppercase tracking-wider text-gray-400">Maintenance</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- Footer -->
 <footer class="relative z-10 py-20 px-8 border-t border-white/5">
-    <div class="max-w-[1920px] mx-auto text-center">
-        <div class="text-8xl font-black text-white/5 mb-4">1337</div>
-        <div class="text-gray-500 text-sm tracking-widest uppercase">© 2026 Stock1337 - Future of Inventory Management</div>
-    </div>
+  <div class="max-w-[1920px] mx-auto text-center">
+    <div class="text-8xl font-black text-white/5 mb-4">1337</div>
+    <div class="text-gray-500 text-sm tracking-widest uppercase">© 2026 Stock1337 - Future of Inventory Management</div>
+  </div>
 </footer>
+
+<!-- Auth Modal -->
+@if (showAuthModal) {
+  <app-login [mode]="authMode" (close)="closeAuth()" (authSuccess)="onAuthSuccess()"></app-login>
+}
