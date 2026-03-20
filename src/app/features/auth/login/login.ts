@@ -172,26 +172,29 @@ export class LoginComponent {
 
     this.isLoading = true;
 
-    this.http.post(`${this.apiUrl}/authenticate`, {
+    this.http.post<any>(`http://localhost:8087/api/v1/auth/authenticate`, {
       email: this.email,
       password: this.password
     }).subscribe({
       next: (response: any) => {
         this.isLoading = false;
 
+        const user = response.user;
+        const role = 'ROLE_' + user.role;
+
         localStorage.setItem('token', response.token);
-        localStorage.setItem('role', response.role);
-        localStorage.setItem('email', response.email || this.email);
+        localStorage.setItem('role', role);
+        localStorage.setItem('email', user.email );
         if(response.name) {
-          localStorage.setItem('name', response.name);
+          localStorage.setItem('name', user.name);
         }
         this.close.emit();
 
-        if(response.role === 'ADMIN' || response.role === 'ROLE_ADMIN') {
+        if(role === 'ROLE_ADMIN' ) {
           console.log('redirect to admin dashboard');
           this.router.navigate(['/admin/dashboard-admin']);
         }
-        else if (response.role === 'USER') {
+        else if (response.role === 'ROLE_USER') {
           this.router.navigate(['/user/dashboard']);
         }
         else {
