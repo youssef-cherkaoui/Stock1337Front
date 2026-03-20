@@ -1,136 +1,257 @@
-<div class="articles-container">
-  <!-- Navbar -->
-  <nav class="glass-nav px-8 py-4 flex justify-between items-center sticky top-0 z-50">
-    <div class="flex items-center gap-4">
-      <button routerLink="/dashboard" class="text-gray-400 hover:text-white transition-colors">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-        </svg>
-      </button>
-      <h1 class="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-400">
-        Articles
-      </h1>
-    </div>
-    <button *ngIf="isAdmin" (click)="showAddForm = !showAddForm"
-            class="glow-button px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-black font-bold">
-      + Nouvel Article
-    </button>
-  </nav>
+<div class="articles-wrapper">
+  <canvas #threeCanvas class="three-canvas"></canvas>
 
-  <div class="p-8 max-w-[1920px] mx-auto">
-    <!-- Filters -->
-    <div class="glass-card p-6 rounded-3xl mb-8 flex flex-wrap gap-4">
-      <div class="relative flex-1 min-w-[200px]">
-        <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+  <!-- Header -->
+  <header class="glass-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <button routerLink="/dashboard" class="back-btn">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+          </svg>
+        </button>
+        <div class="logo-badge">1337</div>
+        <div>
+          <h1 class="header-title">Articles</h1>
+          <p class="header-sub">{{ articles.length }} article(s) · {{ lowStockCount }} stock faible</p>
+        </div>
+      </div>
+      <button *ngIf="isAdmin" (click)="showAddForm = !showAddForm" class="create-btn">
+        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
         </svg>
-        <select (change)="onStockFilter($event)" class="w-full bg-black/30 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-white focus:border-emerald-500/50 focus:outline-none appearance-none cursor-pointer">
+        Nouvel Article
+      </button>
+    </div>
+  </header>
+
+  <main class="main-content">
+
+    <!-- Charts Row -->
+    <div class="charts-row">
+
+      <!-- Donut — Stock Health -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <span class="chart-title">Santé du Stock</span>
+          <span class="chart-sub">Normal vs Faible</span>
+        </div>
+        <div class="donut-wrap">
+          <canvas #donutChart width="180" height="180"></canvas>
+          <div class="donut-center">
+            <span class="donut-val">{{ healthPct }}%</span>
+            <span class="donut-lbl">OK</span>
+          </div>
+        </div>
+        <div class="donut-legend">
+          <div class="legend-item">
+            <span class="ldot emerald"></span>
+            <span>Normal</span>
+            <strong>{{ articles.length - lowStockCount }}</strong>
+          </div>
+          <div class="legend-item">
+            <span class="ldot rose"></span>
+            <span>Faible</span>
+            <strong>{{ lowStockCount }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bar — Quantités par article (top 6) -->
+      <div class="chart-card chart-wide">
+        <div class="chart-header">
+          <span class="chart-title">Quantités en Stock</span>
+          <span class="chart-sub">Top articles</span>
+        </div>
+        <div class="bar-wrap">
+          <canvas #barChart height="160"></canvas>
+        </div>
+      </div>
+
+      <!-- Stats mini -->
+      <div class="chart-card stats-mini-card">
+        <div class="chart-header">
+          <span class="chart-title">Résumé</span>
+        </div>
+        <div class="mini-stats">
+          <div class="mini-stat">
+            <div class="mini-icon emerald">🛍️</div>
+            <div class="mini-body">
+              <span class="mini-val">{{ articles.length }}</span>
+              <span class="mini-lbl">Total articles</span>
+            </div>
+          </div>
+          <div class="mini-stat">
+            <div class="mini-icon purple">📦</div>
+            <div class="mini-body">
+              <span class="mini-val">{{ stocks.length }}</span>
+              <span class="mini-lbl">Stocks</span>
+            </div>
+          </div>
+          <div class="mini-stat">
+            <div class="mini-icon blue">🏢</div>
+            <div class="mini-body">
+              <span class="mini-val">{{ departements.length }}</span>
+              <span class="mini-lbl">Départements</span>
+            </div>
+          </div>
+          <div class="mini-stat">
+            <div class="mini-icon rose">⚠️</div>
+            <div class="mini-body">
+              <span class="mini-val rose">{{ lowStockCount }}</span>
+              <span class="mini-lbl">Alertes</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-bar">
+      <div class="filter-wrap">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="filter-icon">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+        </svg>
+        <select (change)="onStockFilter($event)" class="filter-select">
           <option value="">Tous les Stocks</option>
           <option *ngFor="let stock of stocks" [value]="stock.id">{{ stock.name }}</option>
         </select>
       </div>
-      <div class="relative flex-1 min-w-[200px]">
-        <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+      <div class="filter-wrap">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="filter-icon">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
         </svg>
-        <select (change)="onDeptFilter($event)" class="w-full bg-black/30 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-white focus:border-emerald-500/50 focus:outline-none appearance-none cursor-pointer">
+        <select (change)="onDeptFilter($event)" class="filter-select">
           <option value="">Tous les Départements</option>
           <option *ngFor="let dept of departements" [value]="dept.id">{{ dept.name }}</option>
         </select>
       </div>
+      <div class="filter-count">
+        <span>{{ articles.length }} résultat(s)</span>
+      </div>
     </div>
 
-    <!-- Add Article Form -->
-    <div *ngIf="showAddForm && isAdmin" class="glass-card p-8 rounded-3xl mb-8 border border-emerald-500/30 bg-emerald-500/5">
-      <h3 class="text-2xl font-bold mb-6 text-emerald-400">Nouvel Article</h3>
-      <form [formGroup]="articleForm" (ngSubmit)="addArticle()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <input formControlName="name" placeholder="Nom de l'article"
-               class="bg-black/30 border border-white/10 rounded-xl px-4 py-4 text-white placeholder-gray-500 focus:border-emerald-500/50 focus:outline-none">
-        <input formControlName="description" placeholder="Description"
-               class="bg-black/30 border border-white/10 rounded-xl px-4 py-4 text-white placeholder-gray-500 focus:border-emerald-500/50 focus:outline-none">
-        <input type="number" formControlName="quantity" placeholder="Quantité"
-               class="bg-black/30 border border-white/10 rounded-xl px-4 py-4 text-white placeholder-gray-500 focus:border-emerald-500/50 focus:outline-none">
-        <input type="number" formControlName="minThreshold" placeholder="Seuil minimum"
-               class="bg-black/30 border border-white/10 rounded-xl px-4 py-4 text-white placeholder-gray-500 focus:border-emerald-500/50 focus:outline-none">
-        <select formControlName="stockId"
-                class="bg-black/30 border border-white/10 rounded-xl px-4 py-4 text-white focus:border-emerald-500/50 focus:outline-none appearance-none">
-          <option value="">Sélectionner Stock</option>
-          <option *ngFor="let stock of stocks" [value]="stock.id">{{ stock.name }}</option>
-        </select>
-        <select formControlName="departementId"
-                class="bg-black/30 border border-white/10 rounded-xl px-4 py-4 text-white focus:border-emerald-500/50 focus:outline-none appearance-none">
-          <option value="">Sélectionner Département</option>
-          <option *ngFor="let dept of departements" [value]="dept.id">{{ dept.name }}</option>
-        </select>
-        <div class="md:col-span-2 lg:col-span-3 flex gap-4">
-          <button type="submit" [disabled]="articleForm.invalid"
-                  class="flex-1 bg-gradient-to-r from-emerald-500 to-cyan-500 text-black font-bold py-4 rounded-xl hover:shadow-lg hover:shadow-emerald-500/25 transition-all disabled:opacity-50">
-            Ajouter Article
-          </button>
-          <button type="button" (click)="showAddForm = false"
-                  class="px-8 py-4 rounded-xl border border-white/20 text-white hover:bg-white/10 transition-colors">
-            Annuler
-          </button>
+    <!-- Add Form -->
+    <div *ngIf="showAddForm && isAdmin" class="add-form-card">
+      <div class="form-glow"></div>
+      <div class="form-header">
+        <h3>Nouvel Article</h3>
+        <button (click)="showAddForm = false" class="close-btn">✕</button>
+      </div>
+      <form [formGroup]="articleForm" (ngSubmit)="addArticle()" class="form-grid">
+        <div class="field">
+          <label>Nom</label>
+          <input formControlName="name" placeholder="Nom de l'article"/>
+        </div>
+        <div class="field">
+          <label>Description</label>
+          <input formControlName="description" placeholder="Description"/>
+        </div>
+        <div class="field">
+          <label>Quantité</label>
+          <input type="number" formControlName="quantity" placeholder="0"/>
+        </div>
+        <div class="field">
+          <label>Seuil minimum</label>
+          <input type="number" formControlName="minThreshold" placeholder="5"/>
+        </div>
+        <div class="field">
+          <label>Stock</label>
+          <div class="select-wrap">
+            <select formControlName="stockId">
+              <option value="">Sélectionner Stock</option>
+              <option *ngFor="let stock of stocks" [value]="stock.id">{{ stock.name }}</option>
+            </select>
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="sel-arrow"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </div>
+        </div>
+        <div class="field">
+          <label>Département</label>
+          <div class="select-wrap">
+            <select formControlName="departementId">
+              <option value="">Sélectionner Département</option>
+              <option *ngFor="let dept of departements" [value]="dept.id">{{ dept.name }}</option>
+            </select>
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="sel-arrow"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" [disabled]="articleForm.invalid" class="btn-submit">Ajouter Article</button>
+          <button type="button" (click)="showAddForm = false" class="btn-cancel">Annuler</button>
         </div>
       </form>
     </div>
 
     <!-- Articles Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      <div *ngFor="let article of articles"
-           class="glass-card group relative overflow-hidden rounded-3xl p-6 border border-white/5 hover:border-white/20 transition-all duration-500"
-           [class.border-rose-500/50]="article.quantity <= article.minThreshold"
-      [class.bg-rose-500/5]="article.quantity <= article.minThreshold">
+    <div class="articles-grid" *ngIf="articles.length > 0">
+      <div *ngFor="let article of articles; let i = index"
+           class="article-card"
+           [class.low-stock]="article.quantity <= article.minThreshold"
+           [style.animation-delay]="i * 0.04 + 's'">
 
-      <!-- Alert Badge -->
-      <div *ngIf="article.quantity <= article.minThreshold"
-           class="absolute top-4 right-4 px-3 py-1 bg-rose-500/20 border border-rose-500/30 rounded-full text-rose-400 text-xs font-bold uppercase tracking-wider">
-        Stock Faible
-      </div>
+        <div class="article-card-glow" [class.rose]="article.quantity <= article.minThreshold"></div>
 
-      <div class="flex items-start justify-between mb-4">
-        <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl"
-             [class]="article.quantity <= article.minThreshold ? 'bg-rose-500/20 text-rose-400' : 'bg-emerald-500/20 text-emerald-400'">
-          📦
+        <!-- Alert -->
+        <div *ngIf="article.quantity <= article.minThreshold" class="alert-badge">
+          ⚠ Stock Faible
         </div>
-        <span class="text-3xl font-black"
-              [class]="article.quantity <= article.minThreshold ? 'text-rose-400' : 'text-emerald-400'">
+
+        <div class="article-top">
+          <div class="article-icon" [class.low]="article.quantity <= article.minThreshold">📦</div>
+          <div class="article-qty" [class.rose]="article.quantity <= article.minThreshold"
+               [class.emerald]="article.quantity > article.minThreshold">
             {{ article.quantity }}
-          </span>
-      </div>
-
-      <h3 class="text-xl font-bold mb-2 group-hover:text-emerald-400 transition-colors">{{ article.name }}</h3>
-      <p class="text-gray-400 text-sm mb-4 line-clamp-2">{{ article.description }}</p>
-
-      <div class="space-y-2 mb-4">
-        <div class="flex items-center gap-2 text-sm text-gray-400">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-          </svg>
-          {{ article.stock?.name }}
+          </div>
         </div>
-        <div class="flex items-center gap-2 text-sm text-gray-400">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-          </svg>
-          {{ article.departement?.name }}
-        </div>
-      </div>
 
-      <div class="flex items-center justify-between pt-4 border-t border-white/10">
-        <span class="text-xs text-gray-500">Min: {{ article.minThreshold }}</span>
-        <button *ngIf="!isAdmin" (click)="demandeArticle(article)"
-                class="px-4 py-2 rounded-xl bg-emerald-500/20 text-emerald-400 text-sm font-bold hover:bg-emerald-500/30 transition-colors">
-          Demander
-        </button>
+        <div class="article-body">
+          <h3 class="article-name">{{ article.name }}</h3>
+          <p class="article-desc">{{ article.description }}</p>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="qty-bar-wrap">
+          <div class="qty-bar">
+            <div class="qty-bar-fill"
+                 [class.emerald]="article.quantity > article.minThreshold"
+                 [class.rose]="article.quantity <= article.minThreshold"
+                 [style.width]="getQtyPct(article) + '%'">
+            </div>
+          </div>
+          <span class="qty-bar-label">Min: {{ article.minThreshold }}</span>
+        </div>
+
+        <div class="article-meta">
+          <div class="meta-item">
+            <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+            </svg>
+            <span>{{ article.stock?.name || '—' }}</span>
+          </div>
+          <div class="meta-item">
+            <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+            </svg>
+            <span>{{ article.departement?.name || '—' }}</span>
+          </div>
+        </div>
+
+        <div class="article-footer">
+          <button *ngIf="!isAdmin" (click)="demandeArticle(article)" class="btn-demande">
+            Demander
+          </button>
+          <span *ngIf="isAdmin" class="article-id">#{{ article.id }}</span>
+        </div>
+
       </div>
     </div>
-  </div>
 
-  <!-- Empty State -->
-  <div *ngIf="articles.length === 0" class="text-center py-20">
-    <div class="text-6xl mb-4">📭</div>
-    <h3 class="text-2xl font-bold text-gray-400">Aucun article trouvé</h3>
-  </div>
-</div>
+    <!-- Empty -->
+    <div *ngIf="articles.length === 0" class="empty-state">
+      <div class="empty-icon">📭</div>
+      <p>Aucun article trouvé</p>
+    </div>
+
+  </main>
 </div>
