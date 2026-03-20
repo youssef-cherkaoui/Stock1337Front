@@ -1,259 +1,325 @@
-<!-- features/admin/dashboard/admin-dashboard.component.html -->
-<div class="admin-dashboard min-h-screen bg-gradient-to-br from-gray-900 via-gray-900 to-black text-white">
+<div class="dashboard-wrapper">
+  <canvas #threeCanvas class="three-canvas"></canvas>
 
-  <!-- Header -->
-  <header class="glass-header sticky top-0 z-50 px-8 py-4 border-b border-white/10 backdrop-blur-xl bg-black/40">
-    <div class="flex justify-between items-center max-w-7xl mx-auto">
-      <div class="flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-xl font-black">
-          A
-        </div>
-        <div>
-          <h1 class="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-purple-500">
-            Admin Dashboard
-          </h1>
-          <p class="text-sm text-gray-400">{{ currentDate | date:'fullDate' }}</p>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-4">
-        <div class="text-right hidden sm:block">
-          <p class="font-medium text-white">{{ userName }}</p>
-          <p class="text-xs text-gray-400">Administrateur</p>
-        </div>
-        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center font-bold text-black">
-          {{ getInitials(userName) }}
-        </div>
-        <button (click)="logout()" class="p-2 rounded-xl hover:bg-rose-500/20 text-gray-400 hover:text-rose-400 transition-all" title="Déconnexion">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-          </svg>
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- Main Content -->
-  <main class="p-8 max-w-7xl mx-auto">
-
-    <!-- Loading State -->
-    <div *ngIf="loading" class="flex items-center justify-center h-64">
-      <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-violet-500"></div>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-badge">1337</div>
+      <span class="logo-text">StockPro</span>
     </div>
 
-    <!-- Error State -->
-    <div *ngIf="error && !loading" class="p-6 bg-rose-500/20 border border-rose-500/30 rounded-2xl text-rose-400 text-center">
-      {{ error }}
+    <nav class="sidebar-nav">
+      <button class="nav-item active" (click)="navigateTo('dashboard-admin')">
+        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+        </svg>
+        <span>Dashboard</span>
+      </button>
+      <button class="nav-item" (click)="navigateTo('users')">
+        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+        <span>Utilisateurs</span>
+        <span class="nav-badge">{{ stats.totalUsers }}</span>
+      </button>
+      <button class="nav-item" (click)="navigateTo('stocks')">
+        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+        </svg>
+        <span>Stocks</span>
+        <span class="nav-badge">{{ stats.totalStocks }}</span>
+      </button>
+      <button class="nav-item" (click)="navigateTo('articles')">
+        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+        </svg>
+        <span>Articles</span>
+        <span class="nav-badge">{{ stats.totalArticles }}</span>
+      </button>
+      <button class="nav-item" (click)="navigateTo('demandes')">
+        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+        </svg>
+        <span>Demandes</span>
+        <span class="nav-badge amber" *ngIf="stats.pendingDemandes > 0">{{ stats.pendingDemandes }}</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">{{ getInitials(userName) }}</div>
+        <div class="sidebar-user-info">
+          <span>{{ userName }}</span>
+          <small>Admin</small>
+        </div>
+      </div>
+      <button (click)="logout()" class="sidebar-logout">
+        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+        </svg>
+      </button>
     </div>
+  </aside>
 
-    <!-- Stats Grid -->
-    <div *ngIf="!loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-8">
+  <!-- Main -->
+  <div class="main-area">
 
-      <!-- Total Users -->
-      <div class="glass-card p-6 rounded-2xl border border-white/5 hover:border-violet-500/30 transition-all group cursor-pointer" (click)="navigateTo('users')">
-        <div class="flex items-center justify-between mb-4">
-          <div class="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-            👥
-          </div>
-          <span class="text-xs text-gray-500 bg-white/5 px-2 py-1 rounded-full">Total</span>
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>Hi, {{ userName }}! 👋</h1>
+        <p>{{ currentDate | date:'EEEE, d MMMM yyyy' }} · Bienvenue dans votre espace admin</p>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-time">{{ currentDate | date:'HH:mm' }}</div>
+        <div class="topbar-status">
+          <span class="status-dot-sm"></span>
+          Système opérationnel
         </div>
-        <div class="text-3xl font-black text-white mb-1">{{ stats.totalUsers }}</div>
-        <div class="text-sm text-gray-400">Utilisateurs</div>
+      </div>
+    </header>
+
+    <main class="main-content">
+
+      <!-- Loading -->
+      <div *ngIf="loading" class="loading-state">
+        <div class="spinner"></div>
+        <span>Chargement des données…</span>
       </div>
 
-      <!-- Total Stocks -->
-      <div class="glass-card p-6 rounded-2xl border border-white/5 hover:border-violet-500/30 transition-all group cursor-pointer" (click)="navigateTo('stocks')">
-        <div class="flex items-center justify-between mb-4">
-          <div class="w-12 h-12 rounded-xl bg-violet-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-            📦
-          </div>
-          <span class="text-xs text-gray-500 bg-white/5 px-2 py-1 rounded-full">Total</span>
-        </div>
-        <div class="text-3xl font-black text-white mb-1">{{ stats.totalStocks }}</div>
-        <div class="text-sm text-gray-400">Stocks</div>
-      </div>
+      <div *ngIf="!loading">
 
-      <!-- Total Articles -->
-      <div class="glass-card p-6 rounded-2xl border border-white/5 hover:border-violet-500/30 transition-all group cursor-pointer" (click)="navigateTo('articles')">
-        <div class="flex items-center justify-between mb-4">
-          <div class="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-            🛍️
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+          <div class="kpi-card" (click)="navigateTo('users')">
+            <div class="kpi-glow blue"></div>
+            <div class="kpi-icon blue">👥</div>
+            <div class="kpi-body">
+              <div class="kpi-value">{{ stats.totalUsers }}</div>
+              <div class="kpi-label">Utilisateurs</div>
+            </div>
+            <div class="kpi-trend up">↑ actifs</div>
           </div>
-          <span class="text-xs text-gray-500 bg-white/5 px-2 py-1 rounded-full">Total</span>
-        </div>
-        <div class="text-3xl font-black text-white mb-1">{{ stats.totalArticles }}</div>
-        <div class="text-sm text-gray-400">Articles</div>
-      </div>
-
-      <!-- Pending Demandes -->
-      <div class="glass-card p-6 rounded-2xl border border-white/5 hover:border-amber-500/30 transition-all group cursor-pointer relative overflow-hidden" (click)="navigateTo('demandes')">
-        <div *ngIf="stats.pendingDemandes > 0" class="absolute top-0 right-0 w-3 h-3 bg-amber-500 rounded-full animate-pulse m-4"></div>
-        <div class="flex items-center justify-between mb-4">
-          <div class="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-            📝
+          <div class="kpi-card" (click)="navigateTo('stocks')">
+            <div class="kpi-glow purple"></div>
+            <div class="kpi-icon purple">📦</div>
+            <div class="kpi-body">
+              <div class="kpi-value">{{ stats.totalStocks }}</div>
+              <div class="kpi-label">Stocks</div>
+            </div>
+            <div class="kpi-trend up">↑ entrepôts</div>
           </div>
-          <span class="text-xs text-amber-400 bg-amber-500/10 px-2 py-1 rounded-full">En attente</span>
-        </div>
-        <div class="text-3xl font-black text-amber-400 mb-1">{{ stats.pendingDemandes }}</div>
-        <div class="text-sm text-gray-400">Demandes</div>
-      </div>
-
-      <!-- Low Stock Alert -->
-      <div class="glass-card p-6 rounded-2xl border border-white/5 hover:border-rose-500/30 transition-all group cursor-pointer relative overflow-hidden" (click)="navigateTo('articles')">
-        <div *ngIf="stats.lowStockArticles > 0" class="absolute top-0 right-0 w-3 h-3 bg-rose-500 rounded-full animate-pulse m-4"></div>
-        <div class="flex items-center justify-between mb-4">
-          <div class="w-12 h-12 rounded-xl bg-rose-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-            ⚠️
+          <div class="kpi-card" (click)="navigateTo('articles')">
+            <div class="kpi-glow emerald"></div>
+            <div class="kpi-icon emerald">🛍️</div>
+            <div class="kpi-body">
+              <div class="kpi-value">{{ stats.totalArticles }}</div>
+              <div class="kpi-label">Articles</div>
+            </div>
+            <div class="kpi-trend up">↑ références</div>
           </div>
-          <span class="text-xs text-rose-400 bg-rose-500/10 px-2 py-1 rounded-full">Alerte</span>
-        </div>
-        <div class="text-3xl font-black text-rose-400 mb-1">{{ stats.lowStockArticles }}</div>
-        <div class="text-sm text-gray-400">Stock Faible</div>
-      </div>
-
-      <!-- Quick Add -->
-      <div class="glass-card p-6 rounded-2xl border border-white/5 hover:border-emerald-500/30 transition-all group cursor-pointer" (click)="navigateTo('stocks')">
-        <div class="flex items-center justify-between mb-4">
-          <div class="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-            ➕
+          <div class="kpi-card" (click)="navigateTo('demandes')">
+            <div class="kpi-glow amber"></div>
+            <div class="kpi-icon amber">📝</div>
+            <div class="kpi-body">
+              <div class="kpi-value amber">{{ stats.pendingDemandes }}</div>
+              <div class="kpi-label">En attente</div>
+            </div>
+            <div class="kpi-trend warn" *ngIf="stats.pendingDemandes > 0">⚠ à traiter</div>
+            <div class="kpi-trend up" *ngIf="stats.pendingDemandes === 0">✓ à jour</div>
+          </div>
+          <div class="kpi-card" (click)="navigateTo('articles')">
+            <div class="kpi-glow rose"></div>
+            <div class="kpi-icon rose">⚠️</div>
+            <div class="kpi-body">
+              <div class="kpi-value rose">{{ stats.lowStockArticles }}</div>
+              <div class="kpi-label">Stock Faible</div>
+            </div>
+            <div class="kpi-trend warn" *ngIf="stats.lowStockArticles > 0">⚠ alertes</div>
+            <div class="kpi-trend up" *ngIf="stats.lowStockArticles === 0">✓ normal</div>
           </div>
         </div>
-        <div class="text-lg font-bold text-emerald-400 mb-1">Nouveau</div>
-        <div class="text-sm text-gray-400">Stock/Article</div>
-      </div>
-    </div>
 
-    <!-- Main Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Charts Row -->
+        <div class="charts-row">
 
-      <!-- Recent Demandes -->
-      <div class="lg:col-span-2 glass-card rounded-2xl border border-white/5 overflow-hidden">
-        <div class="p-6 border-b border-white/5 flex justify-between items-center">
-          <h2 class="text-xl font-bold flex items-center gap-2">
-            <span class="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></span>
-            Demandes Récentes
-          </h2>
-          <button (click)="navigateTo('demandes')" class="text-sm text-violet-400 hover:text-violet-300 transition-colors">
-            Voir tout →
-          </button>
-        </div>
+          <!-- Donut Chart — Demandes -->
+          <div class="chart-card">
+            <div class="chart-header">
+              <div class="chart-title">Statut des Demandes</div>
+              <span class="chart-sub">Vue d'ensemble</span>
+            </div>
+            <div class="donut-wrap">
+              <canvas #donutChart width="200" height="200"></canvas>
+              <div class="donut-center">
+                <div class="donut-total">{{ stats.pendingDemandes }}</div>
+                <div class="donut-label">En attente</div>
+              </div>
+            </div>
+            <div class="donut-legend">
+              <div class="legend-item">
+                <span class="legend-dot amber"></span>
+                <span>En attente</span>
+                <span class="legend-val">{{ stats.pendingDemandes }}</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot emerald"></span>
+                <span>Traitées</span>
+                <span class="legend-val">{{ stats.totalArticles > 0 ? stats.totalArticles : 0 }}</span>
+              </div>
+            </div>
+          </div>
 
-        <div class="divide-y divide-white/5">
-          <div *ngFor="let demande of recentDemandes" class="p-6 hover:bg-white/5 transition-colors group">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 flex items-center justify-center text-amber-400 text-xl">
-                  ⏳
-                </div>
-                <div>
-                  <h3 class="font-bold text-white group-hover:text-violet-400 transition-colors">
-                    {{ demande.articleName }}
-                  </h3>
-                  <p class="text-sm text-gray-400">
-                    Par {{ demande.userName }} • Qté: {{ demande.quantity }} • {{ formatDate(demande.date) }}
-                  </p>
+          <!-- Bar Chart — Stock vs Articles -->
+          <div class="chart-card chart-wide">
+            <div class="chart-header">
+              <div class="chart-title">Stocks & Articles</div>
+              <span class="chart-sub">Distribution par stock</span>
+            </div>
+            <div class="bar-chart-wrap">
+              <canvas #barChart height="180"></canvas>
+            </div>
+          </div>
+
+          <!-- Articles Health -->
+          <div class="chart-card">
+            <div class="chart-header">
+              <div class="chart-title">Santé du Stock</div>
+              <span class="chart-sub">Articles critiques</span>
+            </div>
+            <div class="health-wrap">
+              <div class="health-ring-wrap">
+                <svg viewBox="0 0 100 100" class="health-ring">
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="10"/>
+                  <circle cx="50" cy="50" r="40" fill="none"
+                          [attr.stroke]="healthColor"
+                          stroke-width="10"
+                          stroke-linecap="round"
+                          [attr.stroke-dasharray]="healthDash"
+                          stroke-dashoffset="0"
+                          transform="rotate(-90 50 50)"/>
+                </svg>
+                <div class="health-center">
+                  <span class="health-pct">{{ healthPct }}%</span>
+                  <span class="health-sub">OK</span>
                 </div>
               </div>
+              <div class="health-stats">
+                <div class="health-stat">
+                  <span class="hs-dot emerald"></span>
+                  <span>Normal</span>
+                  <strong>{{ stats.totalArticles - stats.lowStockArticles }}</strong>
+                </div>
+                <div class="health-stat">
+                  <span class="hs-dot rose"></span>
+                  <span>Faible</span>
+                  <strong>{{ stats.lowStockArticles }}</strong>
+                </div>
+                <div class="health-stat">
+                  <span class="hs-dot gray"></span>
+                  <span>Total</span>
+                  <strong>{{ stats.totalArticles }}</strong>
+                </div>
+              </div>
+            </div>
+          </div>
 
-              <div class="flex gap-2">
-                <button (click)="approveDemande(demande.id); $event.stopPropagation()"
-                        class="px-4 py-2 rounded-xl bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 transition-colors text-sm font-medium">
-                  ✓ Approuver
+        </div>
+
+        <!-- Bottom Row -->
+        <div class="bottom-row">
+
+          <!-- Recent Demandes -->
+          <div class="demandes-panel">
+            <div class="panel-header">
+              <div class="panel-title">
+                <span class="live-dot"></span>
+                Demandes en Attente
+              </div>
+              <button (click)="navigateTo('demandes')" class="see-all-btn">Voir tout →</button>
+            </div>
+            <div class="demandes-list">
+              <div *ngFor="let demande of recentDemandes; let i = index"
+                   class="demande-row" [style.animation-delay]="i * 0.06 + 's'">
+                <div class="demande-icon">⏳</div>
+                <div class="demande-info">
+                  <span class="demande-article">{{ demande.articleName }}</span>
+                  <span class="demande-meta">
+                    {{ demande.userName }} · Qté: <strong>{{ demande.quantity }}</strong> · {{ formatDate(demande.date) }}
+                  </span>
+                </div>
+                <div class="demande-actions">
+                  <button (click)="approveDemande(demande.id); $event.stopPropagation()" class="btn-approve">
+                    <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    OK
+                  </button>
+                  <select (change)="rejectDemande(demande.id, getSelectValue($event)); $event.stopPropagation()" class="reject-select">
+                    <option value="">✕ Refuser</option>
+                    <option value="RUPTURE_STOCK">Rupture stock</option>
+                    <option value="QUANTITE_INSUFFISANTE">Qté insuffisante</option>
+                    <option value="ARTICLE_INEXISTANT">Article inexistant</option>
+                    <option value="DEMANDE_INCORRECTE">Demande incorrecte</option>
+                  </select>
+                </div>
+              </div>
+              <div *ngIf="recentDemandes.length === 0" class="empty-state">
+                <div class="empty-icon">📭</div>
+                <p>Aucune demande en attente</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Low Stock Alert + Quick Actions -->
+          <div class="right-col">
+
+            <!-- Low Stock -->
+            <div class="glass-panel" *ngIf="lowStockArticles.length > 0">
+              <div class="panel-header">
+                <div class="panel-title">
+                  <span class="alert-dot"></span>
+                  Articles Stock Faible
+                </div>
+              </div>
+              <div class="low-stock-list">
+                <div *ngFor="let article of lowStockArticles.slice(0,4)" class="low-stock-row">
+                  <div class="low-stock-name">{{ article.name }}</div>
+                  <div class="low-stock-qty">
+                    <span class="qty-badge rose">{{ article.quantity }} restants</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="glass-panel">
+              <div class="panel-header">
+                <div class="panel-title">Actions Rapides</div>
+              </div>
+              <div class="actions-list">
+                <button (click)="navigateTo('stocks')" class="action-btn purple">
+                  <span class="action-icon purple">📦</span>
+                  <div class="action-text"><span>Gérer Stocks</span><small>Ajouter / modifier</small></div>
+                  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                 </button>
-                <select (change)="rejectDemande(demande.id, getSelectValue($event)); $event.stopPropagation()"
-                        class="bg-black/30 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:border-rose-500/50 focus:outline-none">
-                  <option value="">Refuser...</option>
-                  <option value="RUPTURE_STOCK">Rupture de stock</option>
-                  <option value="QUANTITE_INSUFFISANTE">Quantité insuffisante</option>
-                  <option value="ARTICLE_INEXISTANT">Article inexistant</option>
-                  <option value="DEMANDE_INCORRECTE">Demande incorrecte</option>
-                </select>
+                <button (click)="navigateTo('articles')" class="action-btn emerald">
+                  <span class="action-icon emerald">🛍️</span>
+                  <div class="action-text"><span>Gérer Articles</span><small>Ajouter / modifier</small></div>
+                  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </button>
+                <button (click)="navigateTo('users')" class="action-btn blue">
+                  <span class="action-icon blue">👥</span>
+                  <div class="action-text"><span>Utilisateurs</span><small>Gérer les comptes</small></div>
+                  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </button>
               </div>
             </div>
-          </div>
 
-          <!-- Empty State -->
-          <div *ngIf="recentDemandes.length === 0" class="p-12 text-center">
-            <div class="text-5xl mb-4">📭</div>
-            <p class="text-gray-400">Aucune demande en attente</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Quick Actions -->
-      <div class="space-y-6">
-
-        <!-- Actions Card -->
-        <div class="glass-card rounded-2xl border border-white/5 p-6">
-          <h2 class="text-xl font-bold mb-6">Actions Rapides</h2>
-
-          <div class="space-y-3">
-            <button (click)="navigateTo('stocks')"
-                    class="w-full p-4 rounded-xl bg-violet-500/10 border border-violet-500/20 hover:bg-violet-500/20 transition-all flex items-center gap-3 group">
-              <span class="w-10 h-10 rounded-lg bg-violet-500/20 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">📦</span>
-              <div class="text-left">
-                <div class="font-medium text-white">Gérer Stocks</div>
-                <div class="text-xs text-gray-400">Ajouter/modifier des stocks</div>
-              </div>
-            </button>
-
-            <button (click)="navigateTo('articles')"
-                    class="w-full p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 transition-all flex items-center gap-3 group">
-              <span class="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">🛍️</span>
-              <div class="text-left">
-                <div class="font-medium text-white">Gérer Articles</div>
-                <div class="text-xs text-gray-400">Ajouter/modifier des articles</div>
-              </div>
-            </button>
-
-            <button (click)="navigateTo('departements')"
-                    class="w-full p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/20 transition-all flex items-center gap-3 group">
-              <span class="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">🏢</span>
-              <div class="text-left">
-                <div class="font-medium text-white">Départements</div>
-                <div class="text-xs text-gray-400">Gérer les départements</div>
-              </div>
-            </button>
-
-            <button (click)="navigateTo('users')"
-                    class="w-full p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 transition-all flex items-center gap-3 group">
-              <span class="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">👥</span>
-              <div class="text-left">
-                <div class="font-medium text-white">Utilisateurs</div>
-                <div class="text-xs text-gray-400">Gérer les comptes</div>
-              </div>
-            </button>
-          </div>
-        </div>
-
-        <!-- System Status -->
-        <div class="glass-card rounded-2xl border border-white/5 p-6">
-          <h2 class="text-xl font-bold mb-4">État du Système</h2>
-
-          <div class="space-y-4">
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">API Status</span>
-              <span class="flex items-center gap-2 text-emerald-400">
-                <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-                En ligne
-              </span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Base de données</span>
-              <span class="flex items-center gap-2 text-emerald-400">
-                <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-                Connectée
-              </span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Dernière sync</span>
-              <span class="text-gray-300">{{ currentDate | date:'HH:mm' }}</span>
-            </div>
           </div>
         </div>
 
       </div>
-    </div>
-
-  </main>
+    </main>
+  </div>
 </div>

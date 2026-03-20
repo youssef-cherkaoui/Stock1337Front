@@ -1,10 +1,12 @@
-import {Component, OnInit} from '@angular/core';
-import {AuthService} from '../services/AuthService';
-import {HttpClient} from '@angular/common/http';
-import {Router, RouterModule} from '@angular/router';
-import {CommonModule} from '@angular/common';
+import { Component, OnInit, OnDestroy, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
+import { AuthService } from '../services/AuthService';
+import { HttpClient } from '@angular/common/http';
+import { Router, RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import * as THREE from 'three';
+import { Chart, registerables } from 'chart.js';
 
-
+Chart.register(...registerables);
 
 interface DashboardStats {
   totalUsers: number;
@@ -24,36 +26,75 @@ interface RecentDemande {
   date: string;
 }
 
+interface ArticleData {
+  id: number;
+  name: string;
+  quantity: number;
+  minThreshold: number;
+  stock?: { name: string };
+}
+
+interface StockData {
+  id: number;
+  name: string;
+  articles?: ArticleData[];
+}
+
 @Component({
   selector: 'app-admin-dashboard-cb',
+  standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './admin-dashboard-cb.html',
   styleUrl: './admin-dashboard-cb.css',
 })
-
-
-export class AdminDashboardCbComponent implements OnInit {
+export class AdminDashboardCbComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('threeCanvas') threeCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('donutChart') donutChartRef!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('barChart') barChartRef!: ElementRef<HTMLCanvasElement>;
 
   userName = '';
   userEmail = '';
   currentDate = new Date();
 
   stats: DashboardStats = {
-    totalUsers: 0,
-    totalStocks: 0,
-    totalArticles: 0,
-    totalDemandes: 0,
-    pendingDemandes: 0,
-    lowStockArticles: 0
+    totalUsers: 0, totalStocks: 0, totalArticles: 0,
+    totalDemandes: 0, pendingDemandes: 0, lowStockArticles: 0
   };
 
   recentDemandes: RecentDemande[] = [];
+  lowStockArticles: ArticleData[] = [];
+  stocksData: StockData[] = [];
   loading = true;
   error = '';
 
-  // API URLs
-  private apiUrl = '/api/v1/auth';
+  // Health ring
+  get healthPct(): number {
+    if (this.stats.totalArticles === 0) return 100;
+    return Math.round(((this.stats.totalArticles - this.stats.lowStockArticles) / this.stats.totalArticles) * 100);
+  }
+  get healthColor(): string {
+    if (this.healthPct >= 80) return '#10b981';
+    if (this.healthPct >= 50) return '#f59e0b';
+    return '#f43f5e';
+  }
+  get healthDash(): string {
+    const circumference = 2 * Math.PI * 40;
+    const filled = (this.healthPct / 100) * circumference;
+    return `${filled} ${circumference}`;
+  }
 
+  private apiUrl = 'http://localhost:8087/api/v1/auth';
+  private donutChart!: Chart;
+  private barChart!: Chart;
+
+  // Three.js
+  private scene!: THREE.Scene;
+  private camera!: THREE.PerspectiveCamera;
+  private renderer!: THREE.WebGLRenderer;
+  private animationId!: number;
+  private particles!: THREE.Points;
+  private mouseX = 0;
+  private mouseY = 0;
 
   constructor(
     private authService: AuthService,
@@ -63,142 +104,276 @@ export class AdminDashboardCbComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadUserInfo();
-    this.loadStats();
-    this.loadRecentDemandes();
+    this.loadAllData();
   }
 
+  ngAfterViewInit(): void {
+    this.initThreeJS();
+  }
+
+  ngOnDestroy(): void {
+    if (this.animationId) cancelAnimationFrame(this.animationId);
+    if (this.renderer) this.renderer.dispose();
+    if (this.donutChart) this.donutChart.destroy();
+    if (this.barChart) this.barChart.destroy();
+    window.removeEventListener('mousemove', this.onMouseMove);
+    window.removeEventListener('resize', this.onResize);
+  }
+
+  // ─── Three.js ─────────────────────────────────
+  private initThreeJS(): void {
+    const canvas = this.threeCanvas.nativeElement;
+    const w = window.innerWidth, h = window.innerHeight;
+
+    this.scene = new THREE.Scene();
+    this.camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 1000);
+    this.camera.position.z = 5;
+
+    this.renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    this.renderer.setSize(w, h);
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    const count = 2000;
+    const positions = new Float32Array(count * 3);
+    const colors = new Float32Array(count * 3);
+    const palette = [new THREE.Color(0x7c3aed), new THREE.Color(0xa855f7), new THREE.Color(0x00ccff)];
+
+    for (let i = 0; i < count; i++) {
+      positions[i*3]   = (Math.random()-0.5)*60;
+      positions[i*3+1] = (Math.random()-0.5)*60;
+      positions[i*3+2] = (Math.random()-0.5)*60;
+      const c = palette[Math.floor(Math.random()*palette.length)];
+      colors[i*3]=c.r; colors[i*3+1]=c.g; colors[i*3+2]=c.b;
+    }
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    this.particles = new THREE.Points(geo, new THREE.PointsMaterial({
+      size: 0.028, vertexColors: true, transparent: true,
+      opacity: 0.6, blending: THREE.AdditiveBlending, depthWrite: false,
+    }));
+    this.scene.add(this.particles);
+
+    this.onMouseMove = this.onMouseMove.bind(this);
+    this.onResize = this.onResize.bind(this);
+    window.addEventListener('mousemove', this.onMouseMove);
+    window.addEventListener('resize', this.onResize);
+    this.animate();
+  }
+
+  private onMouseMove(e: MouseEvent): void {
+    this.mouseX = (e.clientX/window.innerWidth - 0.5)*2;
+    this.mouseY = (e.clientY/window.innerHeight - 0.5)*2;
+  }
+
+  private onResize(): void {
+    const w = window.innerWidth, h = window.innerHeight;
+    this.camera.aspect = w/h;
+    this.camera.updateProjectionMatrix();
+    this.renderer.setSize(w, h);
+  }
+
+  private animate(): void {
+    this.animationId = requestAnimationFrame(() => this.animate());
+    this.particles.rotation.y += 0.0007;
+    this.particles.rotation.x += 0.0003;
+    this.camera.position.x += (this.mouseX*0.4 - this.camera.position.x)*0.04;
+    this.camera.position.y += (-this.mouseY*0.4 - this.camera.position.y)*0.04;
+    this.camera.lookAt(this.scene.position);
+    this.renderer.render(this.scene, this.camera);
+  }
+
+  // ─── Data ─────────────────────────────────────
   loadUserInfo(): void {
     this.userEmail = localStorage.getItem('email') || '';
     this.userName = localStorage.getItem('name') || this.userEmail.split('@')[0] || 'Admin';
   }
 
-  getSelectValue(event: Event): string {
-    const target = event.target as HTMLSelectElement;
-    return target?.value || '';
+  async loadAllData(): Promise<void> {
+    try {
+      await Promise.all([
+        this.loadUsers(),
+        this.loadStocks(),
+        this.loadArticles(),
+        this.loadDemandes(),
+      ]);
+      this.loading = false;
+      setTimeout(() => this.initCharts(), 100);
+    } catch {
+      this.error = 'Erreur de chargement';
+      this.loading = false;
+    }
   }
 
-  loadStats(): void {
-    // Load all data in parallel
-    Promise.all([
-      this.loadUsersCount(),
-      this.loadStocksCount(),
-      this.loadArticlesCount(),
-      this.loadDemandesCount()
-    ]).then(() => {
-      this.loading = false;
-    }).catch(err => {
-      this.error = 'Erreur de chargement des statistiques';
-      this.loading = false;
-    });
-  }
-
-  async loadUsersCount(): Promise<void> {
+  async loadUsers(): Promise<void> {
     try {
       const users = await this.http.get<any[]>(`${this.apiUrl}/Admin/all`).toPromise() || [];
       this.stats.totalUsers = users.length;
-    } catch (e) {
-      console.error('Error loading users:', e);
-      this.stats.totalUsers = 0;
-    }
+    } catch { this.stats.totalUsers = 0; }
   }
 
-
-  async loadStocksCount(): Promise<void> {
+  async loadStocks(): Promise<void> {
     try {
-      const stocks = await this.http.get<any[]>(`${this.apiUrl}/stocks/all`).toPromise() || [];
+      const stocks = await this.http.get<StockData[]>(`${this.apiUrl}/stocks/all`).toPromise() || [];
       this.stats.totalStocks = stocks.length;
-    } catch (e) {
-      console.error('Error loading stocks:', e);
-      this.stats.totalStocks = 0;
-    }
+      this.stocksData = stocks;
+    } catch { this.stats.totalStocks = 0; }
   }
 
-  async loadArticlesCount(): Promise<void> {
+  async loadArticles(): Promise<void> {
     try {
-      const articles = await this.http.get<any[]>(`${this.apiUrl}/articles/search`).toPromise() || [];
+      const articles = await this.http.get<ArticleData[]>(`${this.apiUrl}/articles/search`).toPromise() || [];
       this.stats.totalArticles = articles.length;
 
-      const lowStock = await this.http.get<any[]>(`${this.apiUrl}/articles/Low-Stock`).toPromise() || [];
+      const lowStock = await this.http.get<ArticleData[]>(`${this.apiUrl}/articles/Low-Stock`).toPromise() || [];
       this.stats.lowStockArticles = lowStock.length;
-    } catch (e) {
-      console.error('Error loading articles:', e);
-      this.stats.totalArticles = 0;
-      this.stats.lowStockArticles = 0;
-    }
+      this.lowStockArticles = lowStock;
+    } catch { this.stats.totalArticles = 0; }
   }
 
-  async loadDemandesCount(): Promise<void> {
+  async loadDemandes(): Promise<void> {
     try {
       const pending = await this.http.get<any[]>(`${this.apiUrl}/demandes/pending`).toPromise() || [];
       this.stats.pendingDemandes = pending.length;
-      this.stats.totalDemandes = pending.length;
-    } catch (e) {
-      console.error('Error loading demandes:', e);
-      this.stats.pendingDemandes = 0;
-    }
+      this.recentDemandes = pending.slice(0, 5).map(d => ({
+        id: d.id,
+        articleName: d.article?.name || 'Article inconnu',
+        userName: d.user?.name || d.user?.email || 'Utilisateur',
+        quantity: d.quantityRequired,
+        status: d.statut,
+        date: d.dateTime
+      }));
+    } catch { this.stats.pendingDemandes = 0; }
   }
 
-  loadRecentDemandes(): void {
-    this.http.get<any[]>(`${this.apiUrl}/demandes/pending`).subscribe({
-      next: (demandes) => {
-        this.recentDemandes = (demandes || []).slice(0, 5).map(d => ({
-          id: d.id,
-          articleName: d.article?.name || 'Article inconnu',
-          userName: d.user?.name || d.user?.email || 'Utilisateur',
-          quantity: d.quantityRequired,
-          status: d.statut,
-          date: d.dateTime
-        }));
+  // ─── Charts ───────────────────────────────────
+  private initCharts(): void {
+    this.initDonutChart();
+    this.initBarChart();
+  }
+
+  private initDonutChart(): void {
+    if (!this.donutChartRef) return;
+    const ctx = this.donutChartRef.nativeElement.getContext('2d');
+    if (!ctx) return;
+
+    const treated = Math.max(0, this.stats.totalArticles - this.stats.pendingDemandes);
+
+    this.donutChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['En attente', 'Traitées'],
+        datasets: [{
+          data: [this.stats.pendingDemandes || 1, treated || 1],
+          backgroundColor: ['rgba(245,158,11,0.8)', 'rgba(16,185,129,0.8)'],
+          borderColor: ['#f59e0b', '#10b981'],
+          borderWidth: 2,
+          hoverOffset: 6,
+        }]
       },
-      error: (err) => {
-        console.error('Error loading recent demandes:', err);
-        this.recentDemandes = [];
+      options: {
+        cutout: '72%',
+        plugins: { legend: { display: false }, tooltip: { enabled: true } },
+        animation: { animateRotate: true, duration: 800 },
       }
     });
   }
 
-  logout(): void {
-    this.authService.logout();
+  private initBarChart(): void {
+    if (!this.barChartRef) return;
+    const ctx = this.barChartRef.nativeElement.getContext('2d');
+    if (!ctx) return;
+
+    // Group articles by stock
+    const stockNames = this.stocksData.slice(0, 6).map(s => s.name || `Stock ${s.id}`);
+    const stockArticleCounts = this.stocksData.slice(0, 6).map(s => s.articles?.length || 0);
+
+    // If no stock data, show stats overview
+    const labels = ['Utilisateurs', 'Stocks', 'Articles', 'En attente', 'Stock Faible'];
+    const data = [
+      this.stats.totalUsers,
+      this.stats.totalStocks,
+      this.stats.totalArticles,
+      this.stats.pendingDemandes,
+      this.stats.lowStockArticles
+    ];
+
+    this.barChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Articles',
+          data,
+          backgroundColor: [
+            'rgba(139,92,246,0.7)', 'rgba(6,182,212,0.7)', 'rgba(16,185,129,0.7)',
+            'rgba(245,158,11,0.7)', 'rgba(244,63,94,0.7)', 'rgba(59,130,246,0.7)'
+          ],
+          borderColor: ['#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#f43f5e', '#3b82f6'],
+          borderWidth: 1,
+          borderRadius: 8,
+          borderSkipped: false,
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(10,10,20,0.9)',
+            titleColor: '#a78bfa',
+            bodyColor: '#ccc',
+            borderColor: 'rgba(139,92,246,0.3)',
+            borderWidth: 1,
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            ticks: { color: '#555', font: { family: 'Outfit', size: 11 } }
+          },
+          y: {
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            ticks: { color: '#555', font: { family: 'Outfit', size: 11 } },
+            beginAtZero: true,
+          }
+        },
+        animation: { duration: 800 },
+      }
+    });
   }
 
-  navigateTo(path: string): void {
-    this.router.navigate([`/admin/${path}`]);
+  // ─── Actions ──────────────────────────────────
+  logout(): void { this.authService.logout(); }
+  navigateTo(path: string): void { this.router.navigate([`/admin/${path}`]); }
+
+  getSelectValue(event: Event): string {
+    return (event.target as HTMLSelectElement)?.value || '';
   }
 
   approveDemande(id: number): void {
     this.http.put(`${this.apiUrl}/demandes/${id}/approve`, {}).subscribe({
-      next: () => {
-        this.loadStats();
-        this.loadRecentDemandes();
-      },
-      error: (err) => alert('Erreur lors de l\'approbation')
+      next: () => this.loadAllData()
     });
   }
 
   rejectDemande(id: number, cause: string): void {
-    const params = { cause: cause };
-    this.http.put(`${this.apiUrl}/demandes/${id}/reject`, null, { params }).subscribe({
-      next: () => {
-        this.loadStats();
-        this.loadRecentDemandes();
-      },
-      error: (err) => alert('Erreur lors du refus')
+    if (!cause) return;
+    this.http.put(`${this.apiUrl}/demandes/${id}/reject`, null, { params: { cause } }).subscribe({
+      next: () => this.loadAllData()
     });
   }
 
   getInitials(name: string): string {
+    if (!name) return '?';
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   }
 
   formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('fr-FR', {
-      day: 'numeric',
-      month: 'short',
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(dateString).toLocaleDateString('fr-FR', {
+      day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
     });
   }
-
-
 }
