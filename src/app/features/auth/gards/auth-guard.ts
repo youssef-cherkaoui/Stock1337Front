@@ -6,12 +6,11 @@ export const authGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
   const authService = inject(AuthService);
 
-  if (authService.isLoggedIn$) {
 
     if (authService.getToken()) {
       return true;
     }
-  }
+
 
   router.navigate(['/login']);
   return false;
@@ -68,7 +67,7 @@ export const publicGuard: CanActivateFn = (route, state) => {
   }
 
   if (authService.isAdmin()) {
-    router.navigate(['/admin/dashboard']);
+    router.navigate(['/admin/dashboard-admin']);
   } else {
     router.navigate(['/user/dashboard']);
   }

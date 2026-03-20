@@ -107,6 +107,7 @@ export class AuthService {
   }
 
   isAdmin(): boolean {
+    const  role = localStorage.getItem('role');
     return localStorage.getItem('role') === 'ROLE_ADMIN';
   }
 

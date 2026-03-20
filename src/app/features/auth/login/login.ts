@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient  } from '@angular/common/http';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -123,16 +124,16 @@ export class LoginComponent {
   errorMessage = '';
   successMessage = '';
 
-  // Form fields
+
   name = '';
   email = '';
   password = '';
   confirmPassword = '';
 
-  // Backend API URL
+
   private apiUrl = '/api/v1/auth';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private  router : Router) {}
 
   ngOnInit() {
     this.isLogin = this.mode === 'login';
@@ -177,12 +178,26 @@ export class LoginComponent {
     }).subscribe({
       next: (response: any) => {
         this.isLoading = false;
-        // Save token and user
+
         localStorage.setItem('token', response.token);
-        localStorage.setItem('user', JSON.stringify(response.user));
-        this.authSuccess.emit(response);
+        localStorage.setItem('role', response.role);
+        localStorage.setItem('email', response.email || this.email);
+        if(response.name) {
+          localStorage.setItem('name', response.name);
+        }
         this.close.emit();
-        window.location.reload();
+
+        if(response.role === 'ADMIN' || response.role === 'ROLE_ADMIN') {
+          console.log('redirect to admin dashboard');
+          this.router.navigate(['/admin/dashboard-admin']);
+        }
+        else if (response.role === 'USER') {
+          this.router.navigate(['/user/dashboard']);
+        }
+        else {
+          this.router.navigate(['dashboard']);
+        }
+
       },
       error: (error) => {
         this.isLoading = false;
@@ -192,7 +207,6 @@ export class LoginComponent {
   }
 
   doRegister() {
-    // Validation
     if (!this.name || !this.email || !this.password || !this.confirmPassword) {
       this.errorMessage = 'Veuillez remplir tous les champs';
       return;
@@ -210,7 +224,6 @@ export class LoginComponent {
 
     this.isLoading = true;
 
-    // Register as USER (Student) - Admin registration is backend only
     this.http.post(`${this.apiUrl}/register/user`, {
       name: this.name,
       email: this.email,
@@ -218,19 +231,26 @@ export class LoginComponent {
     }).subscribe({
       next: (response: any) => {
         this.isLoading = false;
-        this.successMessage = 'Compte créé avec succès ! Connexion...';
-        // Auto login after register
-        setTimeout(() => {
-          localStorage.setItem('token', response.token);
-          localStorage.setItem('user', JSON.stringify(response.user));
-          this.authSuccess.emit(response);
-          this.close.emit();
-          window.location.reload();
-        }, 1500);
+
+        localStorage.setItem('token', response.token);
+        localStorage.setItem('role', response.role);
+        localStorage.setItem('email', response.email || this.email);
+        if (response.name) {
+          localStorage.setItem('name', response.name);
+        }
+
+        this.close.emit();
+
+        // Redirect after register
+        if (response.role === 'ADMIN') {
+          this.router.navigate(['/admin/dashboard-admin']);
+        } else {
+          this.router.navigate(['/user/dashboard']);
+        }
       },
       error: (error) => {
         this.isLoading = false;
-        this.errorMessage = error.error?.message || 'Erreur lors de l\'inscription. Email peut-être déjà utilisé.';
+        this.errorMessage = error.error?.message || 'Erreur lors de l\'inscription';
       }
     });
   }
