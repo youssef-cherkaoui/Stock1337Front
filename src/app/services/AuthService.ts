@@ -4,19 +4,20 @@ import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
 
-interface AuthResponse {
-  token: string;
+
+interface Person {
+  id: number;
+  name: string;
+  email: string;
   role: string;
-  email?: string;
-  name?: string;
 }
 
-interface DecodedToken {
-  sub: string;
-  role: string;
-  exp: number;
-  name?: string;
+interface BackendResponse {
+  token: string;
+  user: Person;
 }
+
+
 
 @Injectable({
   providedIn: 'root'
@@ -30,7 +31,9 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<any>(this.getUserFromStorage());
   public currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor(private http: HttpClient, private router: Router) {
+  constructor(
+    private http: HttpClient,
+    private router: Router) {
   }
 
   private hasToken(): boolean {
@@ -49,36 +52,42 @@ export class AuthService {
     return null;
   }
 
-  login(email: string, password: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/authenticate`, {email, password})
-      .pipe(
+  login(email: string, password: string): Observable<BackendResponse> {
+    return this.http.post<BackendResponse>(`${this.apiUrl}/authenticate`, {
+      email,
+      password
+    }).pipe(
         tap(response => {
+
+          console.log(JSON.stringify(response));
+          const user = response.user;
+          const role = 'ROLE_' + user.role;
           // Save to localStorage
           localStorage.setItem('token', response.token);
-          localStorage.setItem('role', response.role);
-          localStorage.setItem('email', response.email || email);
-          if (response.name) {
-            localStorage.setItem('name', response.name);
+          localStorage.setItem('role', role);
+          localStorage.setItem('email', user.email);
+          if (user.name) {
+            localStorage.setItem('name', user.name);
           }
 
-          // Update BehaviorSubjects (IMPORTANT!)
+
           this.isLoggedInSubject.next(true);
           this.currentUserSubject.next({
             token: response.token,
-            role: response.role,
-            email: response.email || email,
-            name: response.name
+            role: role,
+            email: user.email ,
+            name: user.name
           });
 
           // Redirect based on role
-          this.redirectBasedOnRole(response.role);
+          this.redirectBasedOnRole(role);
         })
       );
   }
 
-  register(userData: any, isAdmin: boolean = false): Observable<AuthResponse> {
+  register(userData: any, isAdmin: boolean = false): Observable<BackendResponse> {
     const endpoint = isAdmin ? '/register/admin' : '/register/user';
-    return this.http.post<AuthResponse>(`${this.apiUrl}${endpoint}`, userData);
+    return this.http.post<BackendResponse>(`${this.apiUrl}${endpoint}`, userData);
   }
 
   logout(): void {
@@ -98,7 +107,7 @@ export class AuthService {
     console.log('Redirecting based on role:', role); // Debug
 
     if (role === 'ROLE_ADMIN') {
-      this.router.navigate(['/admin/dashboard']);
+      this.router.navigate(['/admin/dashboard-admin']);
     } else if (role === 'ROLE_USER') {
       this.router.navigate(['/user/dashboard']);
     } else {
@@ -107,7 +116,7 @@ export class AuthService {
   }
 
   isAdmin(): boolean {
-    const  role = localStorage.getItem('role');
+
     return localStorage.getItem('role') === 'ROLE_ADMIN';
   }
 
