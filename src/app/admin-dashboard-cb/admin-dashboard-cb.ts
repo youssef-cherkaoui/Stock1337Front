@@ -64,6 +64,7 @@ export class AdminDashboardCbComponent implements OnInit, AfterViewInit, OnDestr
   recentDemandes: RecentDemande[] = [];
   lowStockArticles: ArticleData[] = [];
   stocksData: StockData[] = [];
+  historyData: any[] = [];
   loading = true;
   error = '';
 
@@ -189,6 +190,12 @@ export class AdminDashboardCbComponent implements OnInit, AfterViewInit, OnDestr
   loadUserInfo(): void {
     this.userEmail = localStorage.getItem('email') || '';
     this.userName = localStorage.getItem('name') || this.userEmail.split('@')[0] || 'Admin';
+    console.log('ALL localStorage:', {
+      name: localStorage.getItem('name'),
+      email: localStorage.getItem('email'),
+      role: localStorage.getItem('role'),
+      token: localStorage.getItem('token')?.slice(0,20)
+    });
   }
 
   async loadAllData(): Promise<void> {
@@ -198,6 +205,7 @@ export class AdminDashboardCbComponent implements OnInit, AfterViewInit, OnDestr
         this.loadStocks(),
         this.loadArticles(),
         this.loadDemandes(),
+        this.loadHistory(),
       ]);
       this.loading = false;
       setTimeout(() => this.initCharts(), 100);
@@ -231,6 +239,13 @@ export class AdminDashboardCbComponent implements OnInit, AfterViewInit, OnDestr
       this.stats.lowStockArticles = lowStock.length;
       this.lowStockArticles = lowStock;
     } catch { this.stats.totalArticles = 0; }
+  }
+
+  private async loadHistory(): Promise<void> {
+    try {
+      const history = await this.http.get<any[]>(`${this.apiUrl}/history/recent`).toPromise() || [];
+      this.historyData = history;
+    } catch { this.historyData = []; }
   }
 
   async loadDemandes(): Promise<void> {

@@ -29,6 +29,11 @@ export const routes: Routes = [
       // },
       // {
       {
+        path: 'departements',
+        loadComponent: () => import('./departement-management/departement-management')
+          .then(m => m.DepartementsManagement)
+      },
+      {
         path: 'users',
         loadComponent: () => import('./admin-users-management/admin-users-management').then(m => m.AdminUsersManagement)
       },
@@ -62,10 +67,10 @@ export const routes: Routes = [
     path: 'user',
     canActivate: [userGuard],
     children: [
-      // {
-      //   path: 'dashboard',
-      //   loadComponent: () => import('./features/user/dashboard/user-dashboard').then(m => m.UserDashboardComponent)
-      // },
+      {
+        path: 'dashboard-user',
+        loadComponent: () => import('./user-dashboard-cb/user-dashboard-cb').then(m => m.UserDashboardCB)
+      },
       {
         path: 'articles',
         loadComponent: () => import('./features/article/article').then(m => m.ArticleComponent)

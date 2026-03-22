@@ -185,7 +185,7 @@ export class LoginComponent {
         localStorage.setItem('token', response.token);
         localStorage.setItem('role', role);
         localStorage.setItem('email', user.email );
-        if(response.name) {
+        if(user.name) {
           localStorage.setItem('name', user.name);
         }
         this.close.emit();
@@ -195,7 +195,7 @@ export class LoginComponent {
           this.router.navigate(['/admin/dashboard-admin']);
         }
         else if (response.role === 'ROLE_USER') {
-          this.router.navigate(['/user/dashboard']);
+          this.router.navigate(['/user/dashboard-user']);
         }
         else {
           this.router.navigate(['dashboard']);
@@ -248,7 +248,7 @@ export class LoginComponent {
         if (response.role === 'ADMIN') {
           this.router.navigate(['/admin/dashboard-admin']);
         } else {
-          this.router.navigate(['/user/dashboard']);
+          this.router.navigate(['/user/dashboard-user']);
         }
       },
       error: (error) => {
