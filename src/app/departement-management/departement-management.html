@@ -1,0 +1,136 @@
+<div class="dept-wrapper">
+  <canvas #threeCanvas class="three-canvas"></canvas>
+
+  <!-- Header -->
+  <header class="glass-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <button (click)="navigateTo('dashboard-admin')" class="back-btn">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+          </svg>
+        </button>
+        <div class="logo-badge">1337</div>
+        <div>
+          <h1 class="header-title">Départements</h1>
+          <p class="header-sub">{{ departements.length }} département(s)</p>
+        </div>
+      </div>
+      <button (click)="openCreateModal()" class="create-btn">
+        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Nouveau Département
+      </button>
+    </div>
+  </header>
+
+  <main class="main-content">
+
+    <!-- Search -->
+    <div class="search-bar">
+      <div class="search-wrap">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="s-icon">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/>
+        </svg>
+        <input type="text" [(ngModel)]="searchQuery" (input)="filterDepts()"
+               placeholder="Rechercher un département…" class="search-input"/>
+        <button *ngIf="searchQuery" (click)="clearSearch()" class="clear-btn">✕</button>
+      </div>
+      <div class="chip">
+        <span class="chip-num">{{ filteredDepts.length }}</span>
+        <span class="chip-label">Total</span>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading-state">
+      <div class="spinner"></div>
+      <span>Chargement…</span>
+    </div>
+
+    <!-- Grid -->
+    <div *ngIf="!loading" class="depts-grid">
+      <div *ngFor="let dept of filteredDepts; let i = index"
+           class="dept-card"
+           [style.animation-delay]="i * 0.05 + 's'">
+        <div class="dept-glow"></div>
+
+        <div class="dept-card-top">
+          <div class="dept-icon">🏢</div>
+          <div class="dept-actions">
+            <button (click)="openEditModal(dept)" class="icon-btn edit" title="Modifier">
+              <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+              </svg>
+            </button>
+            <button (click)="confirmDelete(dept)" class="icon-btn delete" title="Supprimer">
+              <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="dept-name">{{ dept.name }}</div>
+        <div class="dept-id">#{{ dept.id }}</div>
+      </div>
+
+      <!-- Empty -->
+      <div *ngIf="filteredDepts.length === 0" class="empty-state">
+        <div class="empty-icon">🏢</div>
+        <p>Aucun département trouvé</p>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ─── Create / Edit Modal ─── -->
+  <div *ngIf="showModal" class="modal-backdrop" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-glow"></div>
+      <div class="modal-header">
+        <h2>{{ isEditing ? 'Modifier Département' : 'Nouveau Département' }}</h2>
+        <button (click)="closeModal()" class="modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="formError" class="form-error">⚠️ {{ formError }}</div>
+        <div class="field">
+          <label>Nom du département</label>
+          <input type="text" [(ngModel)]="form.name" placeholder="1337" autofocus/>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button (click)="closeModal()" class="btn-cancel">Annuler</button>
+        <button (click)="saveDept()" [disabled]="saving || !form.name" class="btn-save">
+          <svg *ngIf="saving" class="spin-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+          {{ saving ? 'Enregistrement…' : (isEditing ? 'Mettre à jour' : 'Créer') }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Delete Confirm ─── -->
+  <div *ngIf="showDeleteModal" class="modal-backdrop" (click)="showDeleteModal = false">
+    <div class="modal modal-sm" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Confirmer la suppression</h2>
+        <button (click)="showDeleteModal = false" class="modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="delete-icon">🗑️</div>
+        <p class="delete-text">
+          Supprimer <strong>{{ deptToDelete?.name }}</strong> ?
+          Cette action est irréversible.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button (click)="showDeleteModal = false" class="btn-cancel">Annuler</button>
+        <button (click)="deleteDept()" class="btn-delete">Supprimer</button>
+      </div>
+    </div>
+  </div>
+
+</div>
