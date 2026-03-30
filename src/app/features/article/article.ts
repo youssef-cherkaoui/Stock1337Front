@@ -39,6 +39,12 @@ export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy {
 
   currentTime: string = '';
 
+
+  deletingArticle: Article | null = null;
+  deleteLoading = false;
+
+  editingArticle: Article | null = null;
+
   private donutChart!: Chart;
   private barChart!: Chart;
   private lineChart!: Chart;
@@ -70,6 +76,93 @@ export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy {
       stockId: ['', Validators.required],
       departementId: ['', Validators.required]
     });
+  }
+
+
+  submitForm(): void {
+    if (this.articleForm.invalid) return;
+    const request: ArticleRequest = this.articleForm.value;
+
+    if (this.editingArticle) {
+      // UPDATE
+      this.articleService.updateArticle(this.editingArticle.id, request).subscribe({
+        next: () => {
+          this.loadArticles();
+          this.closeForm();
+        },
+        error: (err) => console.error('Update article error:', err)
+      });
+    } else {
+      // CREATE
+      this.articleService.addArticle(request).subscribe({
+        next: () => {
+          this.loadArticles();
+          this.closeForm();
+        },
+        error: (err) => console.error('Add article error:', err)
+      });
+    }
+  }
+
+  openDeleteConfirm(article: Article): void {
+    this.deletingArticle = article;
+  }
+
+  cancelDelete(): void {
+    this.deletingArticle = null;
+    this.deleteLoading = false;
+  }
+
+  confirmDelete(): void {
+    if (!this.deletingArticle) return;
+    this.deleteLoading = true;
+    this.articleService.deleteArticle(this.deletingArticle.id).subscribe({
+      next: () => {
+        this.loadArticles();
+        this.cancelDelete();
+      },
+      error: (err) => {
+        console.error('Delete article error:', err);
+        this.deleteLoading = false;
+      }
+    });
+  }
+
+  // ═══ Form Management ═════════════════════════════════
+
+  /** Ouvre le formulaire d'ajout */
+  openAddForm(): void {
+    this.editingArticle = null;
+    this.articleForm.reset({
+      name: '',
+      description: '',
+      quantity: 0,
+      minThreshold: 5,
+      stockId: '',
+      departementId: ''
+    });
+    this.showAddForm = true;
+  }
+
+  /** Ouvre le formulaire d'édition avec les données de l'article */
+  openEditForm(article: Article): void {
+    this.editingArticle = article;
+    this.articleForm.patchValue({
+      name: article.name,
+      description: article.description || '',
+      quantity: article.quantity,
+      minThreshold: article.minThreshold,
+      stockId: article.stock?.id || '',
+      departementId: article.departement?.id || ''
+    });
+    this.showAddForm = true;
+  }
+
+  /** Ferme le formulaire (ajout ou édition) */
+  closeForm(): void {
+    this.showAddForm = false;
+    this.editingArticle = null;
+    this.articleForm.reset({ minThreshold: 5 });
   }
 
   ngOnInit(): void {

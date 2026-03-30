@@ -28,4 +28,12 @@ export class ArticlesService {
   getLowStockArticles(): Observable<Article[]> {
     return this.http.get<Article[]>(`${this.apiUrl}/Low-Stock`);
   }
+
+  updateArticle(id: number, request: ArticleRequest): Observable<Article> {
+    return this.http.put<Article>(`${this.apiUrl}/update-article/${id}`, request);
+  }
+
+  deleteArticle(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/delete-article/${id}`);
+  }
 }
