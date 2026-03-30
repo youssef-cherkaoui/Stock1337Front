@@ -9,7 +9,7 @@ import {CauseRefus, Demande} from '../shared/models/demande.model';
   providedIn: 'root'
 })
 export class DemandeService {
-  private apiUrl = 'http://localhost:8087/api/v1/auth/demandes';
+  private apiUrl = 'https://stock1337.onrender.com/api/v1/auth/demandes';
 
   constructor(private http: HttpClient) {}
 

@@ -1,6 +1,6 @@
 {
   "/api": {
-    "target": "http://localhost:8087",
+    "target": "https://stock1337.onrender.com",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"

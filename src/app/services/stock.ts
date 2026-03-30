@@ -8,7 +8,7 @@ import { Stock, StockRequest } from '../shared/models/stock.model';
   providedIn: 'root'
 })
 export class StockService {
-  private apiUrl = 'http://localhost:8087/api/v1/auth/stocks';
+  private apiUrl = 'https://stock1337.onrender.com/api/v1/auth/stocks';
 
   constructor(private http: HttpClient) {}
 

@@ -9,7 +9,7 @@ import {Article, ArticleRequest} from '../shared/models/article.model';
 })
 export class ArticlesService {
 
-  private apiUrl = 'http://localhost:8087/api/v1/auth/articles';
+  private apiUrl = 'https://stock1337.onrender.com/api/v1/auth/articles';
 
   constructor(private http: HttpClient) {}
 

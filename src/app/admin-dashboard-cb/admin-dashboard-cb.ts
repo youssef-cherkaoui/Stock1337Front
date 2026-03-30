@@ -84,7 +84,7 @@ export class AdminDashboardCbComponent implements OnInit, AfterViewInit, OnDestr
     return `${filled} ${circumference}`;
   }
 
-  private apiUrl = 'http://localhost:8087/api/v1/auth';
+  private apiUrl = 'https://stock1337.onrender.com/api/v1/auth';
   private donutChart!: Chart;
   private barChart!: Chart;
 

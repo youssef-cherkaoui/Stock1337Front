@@ -39,7 +39,7 @@ export class UserDashboardCB implements OnInit, AfterViewInit, OnDestroy {
   saving = false;
   formError = '';
 
-  private apiUrl = 'http://localhost:8087/api/v1/auth';
+  private apiUrl = 'https://stock1337.onrender.com/api/v1/auth';
 
   // Three.js
   private scene!: THREE.Scene;

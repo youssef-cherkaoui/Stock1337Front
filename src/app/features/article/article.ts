@@ -49,7 +49,7 @@ export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy {
   private barChart!: Chart;
   private lineChart!: Chart;
   private chartsInitialized = false;
-  private apiUrl = 'http://localhost:8087/api/v1/auth';
+  private apiUrl = 'https://stock1337.onrender.com/api/v1/auth';
 
   // Three.js
   private scene!: THREE.Scene;

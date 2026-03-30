@@ -46,7 +46,7 @@ export class AdminUsersManagement implements OnInit, AfterViewInit, OnDestroy {
 
   form: UserForm = { name: '', email: '', password: '', phone: '' };
 
-  private apiUrl = 'http://localhost:8087/api/v1/auth';
+  private apiUrl = 'https://stock1337.onrender.com/api/v1/auth';
 
   // Three.js
   private scene!: THREE.Scene;

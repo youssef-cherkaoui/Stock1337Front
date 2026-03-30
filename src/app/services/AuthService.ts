@@ -23,7 +23,7 @@ interface BackendResponse {
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8087/api/v1/auth';
+  private apiUrl = 'https://stock1337.onrender.com/api/v1/auth';
   private isLoggedInSubject = new BehaviorSubject<boolean>(this.hasToken());
 
   public isLoggedIn$ = this.isLoggedInSubject.asObservable();

@@ -172,7 +172,7 @@ export class LoginComponent {
 
     this.isLoading = true;
 
-    this.http.post<any>(`http://localhost:8087/api/v1/auth/authenticate`, {
+    this.http.post<any>(`https://stock1337.onrender.com/api/v1/auth/authenticate`, {
       email: this.email,
       password: this.password
     }).subscribe({

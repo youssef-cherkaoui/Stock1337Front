@@ -7,7 +7,7 @@ import {Departement} from '../shared/models/departement.model';
   providedIn: 'root',
 })
 export class DepartementsService {
-  private apiUrl = 'http://localhost:8087/api/v1/auth/departements';
+  private apiUrl = 'https://stock1337.onrender.com/api/v1/auth/departements';
 
   constructor(private http: HttpClient) {}
 

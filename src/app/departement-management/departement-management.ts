@@ -35,7 +35,7 @@ export class DepartementsManagement implements OnInit, AfterViewInit, OnDestroy 
   editingId: number | null = null;
   form = { name: '' };
 
-  private apiUrl = 'http://localhost:8087/api/v1/auth/departements';
+  private apiUrl = 'https://stock1337.onrender.com/v1/auth/departements';
 
   // Three.js
   private scene!: THREE.Scene;
