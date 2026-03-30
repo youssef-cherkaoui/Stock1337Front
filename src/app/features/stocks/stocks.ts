@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import {Router, RouterModule} from '@angular/router';
 import { StockService } from '../../services/stock';
 import { Departement } from '../../shared/models/departement.model';
 import { DepartementsService } from '../../services/departements';
@@ -27,7 +27,8 @@ export class StocksComponent implements OnInit {
     private fb: FormBuilder,
     private stockService: StockService,
     private deptService: DepartementsService,
-    private authService: AuthService
+    private authService: AuthService,
+    private router : Router
   ) {
     this.stockForm = this.fb.group({
       name: ['', Validators.required],

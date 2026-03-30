@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import {Router, RouterModule} from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Departement } from '../../shared/models/departement.model';
 import { StockService } from '../../services/stock';
@@ -66,7 +66,8 @@ export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy {
     private stockService: StockService,
     private deptService: DepartementsService,
     private authService: AuthService,
-    private http: HttpClient
+    private http: HttpClient,
+    private router : Router
   ) {
     this.articleForm = this.fb.group({
       name: ['', Validators.required],
@@ -578,6 +579,9 @@ export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy {
 
   demandeArticle(article: Article): void {
     console.log('Demande pour:', article.name);
+  }
+  goToDashboard(): void {
+    this.router.navigate(['/admin/dashboard-admin']);
   }
 
   logout(): void {
