@@ -9,13 +9,13 @@
     </div>
 
     <nav class="sidebar-nav">
-      <button class="nav-item" routerLink="/dashboard"><span>Dashboard</span></button>
+      <button class="nav-item" routerLink="/admin/dashboard-admin"><span>Dashboard</span></button>
       <button class="nav-item active" routerLink="/articles">
         <span>Articles</span>
         <span class="nav-badge" *ngIf="lowStockCount > 0" [class.rose]="lowStockCount > 0">{{ lowStockCount }}</span>
       </button>
       <button class="nav-item" routerLink="/stocks"><span>Stocks</span></button>
-      <button class="nav-item" routerLink="/departements"><span>Départements</span></button>
+      <button class="nav-item" routerLink="/admin/departements"><span>Départements</span></button>
       <button class="nav-item" routerLink="/demandes" *ngIf="isAdmin"><span>Demandes</span></button>
     </nav>
 
