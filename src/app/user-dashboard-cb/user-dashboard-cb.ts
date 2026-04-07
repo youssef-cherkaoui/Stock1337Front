@@ -152,14 +152,22 @@ export class UserDashboardCB implements OnInit, AfterViewInit, OnDestroy {
   submitDemande(): void {
     if (!this.selectedArticle || !this.demandeQte) return;
     if (this.demandeQte < 1) { this.formError = 'Quantité invalide'; return; }
-    if (this.demandeQte > (this.selectedArticle.quantity || 0)) {
-      this.formError = 'Quantité supérieure au stock disponible'; return;
+
+    const availableStock = this.selectedArticle.quantity || 0;
+    if (this.demandeQte > availableStock) {
+      this.formError = 'Quantité supérieure au stock disponible';
+      return;
     }
 
     this.saving = true;
     this.formError = '';
 
-    const params = { ArticleId: this.selectedArticle.id, qte: this.demandeQte };
+    // 1. Beddel ArticleId (Majuscule) l articleId (Minuscule)
+    // 2. T-akka3 mn l-path (wach demandes/create aw demandes/demandes/create)
+    const params = {
+      articleId: this.selectedArticle.id.toString(),
+      qte: this.demandeQte.toString()
+    };
 
     this.http.post<any>(`${this.apiUrl}/demandes/create`, null, { params }).subscribe({
       next: () => {
@@ -170,7 +178,9 @@ export class UserDashboardCB implements OnInit, AfterViewInit, OnDestroy {
       },
       error: (err) => {
         this.saving = false;
-        this.formError = err.error?.message || 'Erreur lors de la création';
+        // Ila baqa 403, checki l-console dial Spring Boot f IntelliJ
+        this.formError = err.error?.message || `Erreur ${err.status}: Accès refusé`;
+        console.error('Full error:', err);
       }
     });
   }

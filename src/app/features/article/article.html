@@ -37,13 +37,11 @@
   <div class="main-area">
     <header class="topbar">
       <div class="topbar-left">
-        <!-- BOUTON RETOUR DASHBOARD - SEULE MODIFICATION -->
         <button (click)="goToDashboard()" class="back-btn" title="Retour au Dashboard">
           <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
           </svg>
         </button>
-        <!-- FIN MODIFICATION -->
 
         <div class="title-group">
           <h1>Gestion des Articles</h1>
@@ -187,7 +185,7 @@
         </div>
       </div>
 
-      <!-- ─── Add / Edit Form Modal ─── -->
+      <!-- Add / Edit Form Modal -->
       <div *ngIf="showAddForm && isAdmin" class="modal-overlay" (click)="closeForm()">
         <div class="add-form-card" (click)="$event.stopPropagation()">
           <div class="form-glow"></div>
@@ -246,7 +244,7 @@
         </div>
       </div>
 
-      <!-- ─── Delete Confirm Modal ─── -->
+      <!-- Delete Confirm Modal -->
       <div *ngIf="deletingArticle" class="modal-overlay" (click)="cancelDelete()">
         <div class="delete-modal" (click)="$event.stopPropagation()">
           <div class="delete-icon">🗑️</div>
@@ -283,12 +281,12 @@
           <tbody>
           <tr *ngFor="let article of articles; let i = index"
               class="table-row"
-              [class.low-row]="article.quantity <= article.minThreshold"
+              [class.low-row]="article.minThreshold !== undefined && article.quantity <= article.minThreshold"
               [style.animation-delay]="i * 0.03 + 's'">
             <td class="td-id">#{{ article.id }}</td>
             <td class="td-name">
               <div class="td-name-wrap">
-                <div class="td-icon" [class.low]="article.quantity <= article.minThreshold">📦</div>
+                <div class="td-icon" [class.low]="article.minThreshold !== undefined && article.quantity <= article.minThreshold">📦</div>
                 <div>
                   <div class="td-article-name">{{ article.name }}</div>
                   <div class="td-article-desc" *ngIf="article.description">{{ article.description }}</div>
@@ -300,14 +298,14 @@
             <td class="td-qty">
               <div class="qty-cell">
                   <span class="qty-num"
-                        [class.emerald]="article.quantity > article.minThreshold"
-                        [class.rose]="article.quantity <= article.minThreshold">
+                        [class.emerald]="article.minThreshold === undefined || article.quantity > article.minThreshold"
+                        [class.rose]="article.minThreshold !== undefined && article.quantity <= article.minThreshold">
                     {{ article.quantity }}
                   </span>
                 <div class="qty-mini-bar">
                   <div class="qty-mini-fill"
-                       [class.emerald]="article.quantity > article.minThreshold"
-                       [class.rose]="article.quantity <= article.minThreshold"
+                       [class.emerald]="article.minThreshold === undefined || article.quantity > article.minThreshold"
+                       [class.rose]="article.minThreshold !== undefined && article.quantity <= article.minThreshold"
                        [style.width.%]="getQtyPct(article)">
                   </div>
                 </div>
@@ -316,9 +314,9 @@
             <td class="td-min">{{ article.minThreshold }}</td>
             <td class="td-status">
                 <span class="status-chip"
-                      [class.emerald]="article.quantity > article.minThreshold"
-                      [class.rose]="article.quantity <= article.minThreshold">
-                  {{ article.quantity <= article.minThreshold ? '⚠ Faible' : '✓ Normal' }}
+                      [class.emerald]="article.minThreshold === undefined || article.quantity > article.minThreshold"
+                      [class.rose]="article.minThreshold !== undefined && article.quantity <= article.minThreshold">
+                  {{ article.minThreshold !== undefined && article.quantity <= article.minThreshold ? '⚠ Faible' : '✓ OK' }}
                 </span>
             </td>
             <td class="td-actions">

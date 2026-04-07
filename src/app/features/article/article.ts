@@ -202,8 +202,7 @@ export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // ─── Computed ───────────────────────────────
   get lowStockCount(): number {
-    return this.articles.filter(a => a.quantity <= a.minThreshold).length;
-  }
+    return this.articles.filter(a => a.minThreshold !== undefined && a.quantity <= a.minThreshold).length;  }
 
   get healthPct(): number {
     if (this.articles.length === 0) return 100;
@@ -358,13 +357,12 @@ export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy {
           label: 'Quantité',
           data: top.map(a => a.quantity),
           backgroundColor: top.map(a =>
-            a.quantity <= a.minThreshold
+            a.minThreshold !== undefined && a.quantity <= a.minThreshold
               ? 'rgba(244, 63, 94, 0.7)'
               : 'rgba(16, 185, 129, 0.7)'
           ),
           borderColor: top.map(a =>
-            a.quantity <= a.minThreshold ? '#f43f5e' : '#10b981'
-          ),
+            a.minThreshold !== undefined && a.quantity <= a.minThreshold ? '#f43f5e' : '#10b981'          ),
           borderWidth: 1,
           borderRadius: 8,
           borderSkipped: false
@@ -500,7 +498,7 @@ export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy {
       );
       this.barChart.data.datasets[0].data = top.map(a => a.quantity);
       (this.barChart.data.datasets[0] as any).backgroundColor = top.map(a =>
-        a.quantity <= a.minThreshold ? 'rgba(244, 63, 94, 0.7)' : 'rgba(16, 185, 129, 0.7)'
+        a.minThreshold !== undefined && a.quantity <= a.minThreshold ?  'rgba(244, 63, 94, 0.7)' : 'rgba(16, 185, 129, 0.7)'
       );
       this.barChart.update();
     }

@@ -13,11 +13,17 @@ export class DemandeService {
 
   constructor(private http: HttpClient) {}
 
-  createDemande(articleId: number, qte: number): Observable<Demande> {
-    const params = new HttpParams()
+  createDemande(articleId: number, qte: number, stockId?: number): Observable<any> {
+    let params = new HttpParams()
       .set('ArticleId', articleId.toString())
       .set('qte', qte.toString());
-    return this.http.post<Demande>(`${this.apiUrl}/create`, null, { params });
+
+
+    if (stockId) {
+      params = params.set('stockId', stockId.toString());
+    }
+
+    return this.http.post(`${this.apiUrl}/demandes/create`, null, { params });
   }
 
   getMyDemandes(): Observable<Demande[]> {

@@ -1,8 +1,14 @@
 <div class="dashboard-wrapper">
   <canvas #threeCanvas class="three-canvas"></canvas>
 
+  <!-- Mobile Menu Toggle -->
+  <button class="mobile-menu-toggle" (click)="toggleSidebar()">☰</button>
+
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay" [class.active]="sidebarOpen" (click)="closeSidebar()"></div>
+
   <!-- Sidebar -->
-  <aside class="sidebar">
+  <aside class="sidebar" [class.active]="sidebarOpen">
     <div class="sidebar-logo">
       <div class="logo-badge">1337</div>
       <span class="logo-text">StockPro</span>
@@ -230,6 +236,86 @@
             </div>
           </div>
 
+        </div>
+
+
+        <div class="history-section">
+          <!-- Recent History -->
+          <div class="history-panel">
+            <div class="panel-header">
+              <div class="history-title-wrap">
+                <div class="history-icon">📜</div>
+                <div class="panel-title">Historique Récent (30j)</div>
+              </div>
+              <button (click)="navigateTo('admin/history')" class="see-all-btn">Voir tout →</button>
+            </div>
+            <div class="history-list">
+              <div *ngFor="let history of recentHistory; let i = index"
+                   class="history-row" [style.animation-delay]="i * 0.05 + 's'">
+                <div class="history-type-icon" [class]="getHistoryTypeClass(history.type)">
+                  {{ getHistoryIcon(history.type) }}
+                </div>
+                <div class="history-info">
+                  <span class="history-article">{{ history.articleName }}</span>
+                  <span class="history-meta">
+                    {{ history.stockName }} · par {{ history.userName }}
+                  </span>
+                </div>
+                <div class="history-qty" [class]="history.quantityChange >= 0 ? 'positive' : 'negative'">
+                  {{ history.quantityChange >= 0 ? '+' : '' }}{{ history.quantityChange }}
+                </div>
+                <div class="history-time">{{ formatDateShort(history.recordedAt) }}</div>
+              </div>
+              <div *ngIf="recentHistory.length === 0" class="empty-state">
+                <div class="empty-icon">📭</div>
+                <p>Aucun historique récent</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- History Stats Summary -->
+          <div class="history-panel">
+            <div class="panel-header">
+              <div class="history-title-wrap">
+                <div class="history-icon">📊</div>
+                <div class="panel-title">Résumé des Mouvements</div>
+              </div>
+            </div>
+            <div class="history-list">
+              <div class="history-row" style="background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.15);">
+                <div class="history-type-icon entree">📥</div>
+                <div class="history-info">
+                  <span class="history-article">Total Entrées</span>
+                  <span class="history-meta">Articles ajoutés au stock</span>
+                </div>
+                <div class="history-qty positive">+{{ historyStats.totalEntries }}</div>
+              </div>
+              <div class="history-row" style="background: rgba(59,130,246,0.08); border-color: rgba(59,130,246,0.15);">
+                <div class="history-type-icon sortie">📤</div>
+                <div class="history-info">
+                  <span class="history-article">Total Sorties</span>
+                  <span class="history-meta">Articles retirés du stock</span>
+                </div>
+                <div class="history-qty negative">-{{ historyStats.totalExits }}</div>
+              </div>
+              <div class="history-row" style="background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.15);">
+                <div class="history-type-icon ajustement">⚖️</div>
+                <div class="history-info">
+                  <span class="history-article">Ajustements</span>
+                  <span class="history-meta">Corrections de stock</span>
+                </div>
+                <div class="history-qty" style="background: rgba(245,158,11,0.12); color: #f59e0b;">{{ historyStats.totalAdjustments }}</div>
+              </div>
+              <div class="history-row" style="background: rgba(139,92,246,0.08); border-color: rgba(139,92,246,0.15);">
+                <div class="history-type-icon" style="background: rgba(139,92,246,0.15); color: #a78bfa;">🔄</div>
+                <div class="history-info">
+                  <span class="history-article">Mouvements Totaux</span>
+                  <span class="history-meta">Sur les 30 derniers jours</span>
+                </div>
+                <div class="history-qty" style="background: rgba(139,92,246,0.12); color: #a78bfa;">{{ historyStats.totalMovements }}</div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Bottom Row -->

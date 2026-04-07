@@ -40,6 +40,25 @@ interface StockData {
   articles?: ArticleData[];
 }
 
+interface StockHistory {
+  id: number;
+  articleId: number;
+  articleName: string;
+  stockName: string;
+  userName: string;
+  quantityChange: number;
+  type: 'ENTREE' | 'SORTIE' | 'AJUSTEMENT';
+  reason?: string;
+  recordedAt: string;
+}
+
+interface HistoryStats {
+  totalEntries: number;
+  totalExits: number;
+  totalAdjustments: number;
+  totalMovements: number;
+}
+
 @Component({
   selector: 'app-admin-dashboard-cb',
   standalone: true,
@@ -64,20 +83,31 @@ export class AdminDashboardCbComponent implements OnInit, AfterViewInit, OnDestr
   recentDemandes: RecentDemande[] = [];
   lowStockArticles: ArticleData[] = [];
   stocksData: StockData[] = [];
-  historyData: any[] = [];
+
+  recentHistory: StockHistory[] = [];
+  historyStats: HistoryStats = {
+    totalEntries: 0,
+    totalExits: 0,
+    totalAdjustments: 0,
+    totalMovements: 0
+  };
+
   loading = true;
   error = '';
 
-  // Health ring
+  sidebarOpen = false;
+
   get healthPct(): number {
     if (this.stats.totalArticles === 0) return 100;
     return Math.round(((this.stats.totalArticles - this.stats.lowStockArticles) / this.stats.totalArticles) * 100);
   }
+
   get healthColor(): string {
     if (this.healthPct >= 80) return '#10b981';
     if (this.healthPct >= 50) return '#f59e0b';
     return '#f43f5e';
   }
+
   get healthDash(): string {
     const circumference = 2 * Math.PI * 40;
     const filled = (this.healthPct / 100) * circumference;
@@ -88,7 +118,6 @@ export class AdminDashboardCbComponent implements OnInit, AfterViewInit, OnDestr
   private donutChart!: Chart;
   private barChart!: Chart;
 
-  // Three.js
   private scene!: THREE.Scene;
   private camera!: THREE.PerspectiveCamera;
   private renderer!: THREE.WebGLRenderer;
@@ -121,7 +150,6 @@ export class AdminDashboardCbComponent implements OnInit, AfterViewInit, OnDestr
     window.removeEventListener('resize', this.onResize);
   }
 
-  // ─── Three.js ─────────────────────────────────
   private initThreeJS(): void {
     const canvas = this.threeCanvas.nativeElement;
     const w = window.innerWidth, h = window.innerHeight;
@@ -186,16 +214,9 @@ export class AdminDashboardCbComponent implements OnInit, AfterViewInit, OnDestr
     this.renderer.render(this.scene, this.camera);
   }
 
-  // ─── Data ─────────────────────────────────────
   loadUserInfo(): void {
     this.userEmail = localStorage.getItem('email') || '';
     this.userName = localStorage.getItem('name') || this.userEmail.split('@')[0] || 'Admin';
-    console.log('ALL localStorage:', {
-      name: localStorage.getItem('name'),
-      email: localStorage.getItem('email'),
-      role: localStorage.getItem('role'),
-      token: localStorage.getItem('token')?.slice(0,20)
-    });
   }
 
   async loadAllData(): Promise<void> {
@@ -241,11 +262,95 @@ export class AdminDashboardCbComponent implements OnInit, AfterViewInit, OnDestr
     } catch { this.stats.totalArticles = 0; }
   }
 
-  private async loadHistory(): Promise<void> {
+  async loadHistory(): Promise<void> {
     try {
-      const history = await this.http.get<any[]>(`${this.apiUrl}/history/recent`).toPromise() || [];
-      this.historyData = history;
-    } catch { this.historyData = []; }
+      const history = await this.http.get<StockHistory[]>(`${this.apiUrl}/history/recent`).toPromise() || [];
+
+      this.recentHistory = history.slice(0, 8).map(h => ({
+        id: h.id,
+        articleId: h.articleId,
+        articleName: h.articleName || 'Article inconnu',
+        stockName: h.stockName || 'Stock inconnu',
+        userName: h.userName || 'Système',
+        quantityChange: h.quantityChange || 0,
+        type: h.type || 'AJUSTEMENT',
+        reason: h.reason,
+        recordedAt: h.recordedAt
+      }));
+
+      this.calculateHistoryStats(history);
+    } catch (err) {
+      console.error('Erreur chargement historique:', err);
+      this.recentHistory = [];
+      this.historyStats = { totalEntries: 0, totalExits: 0, totalAdjustments: 0, totalMovements: 0 };
+    }
+  }
+
+  private calculateHistoryStats(history: StockHistory[]): void {
+    let entries = 0;
+    let exits = 0;
+    let adjustments = 0;
+
+    history.forEach(h => {
+      switch (h.type) {
+        case 'ENTREE':
+          entries += Math.abs(h.quantityChange);
+          break;
+        case 'SORTIE':
+          exits += Math.abs(h.quantityChange);
+          break;
+        case 'AJUSTEMENT':
+          adjustments += 1;
+          break;
+      }
+    });
+
+    this.historyStats = {
+      totalEntries: entries,
+      totalExits: exits,
+      totalAdjustments: adjustments,
+      totalMovements: history.length
+    };
+  }
+
+  getHistoryTypeClass(type: string): string {
+    switch (type) {
+      case 'ENTREE': return 'entree';
+      case 'SORTIE': return 'sortie';
+      case 'AJUSTEMENT': return 'ajustement';
+      default: return '';
+    }
+  }
+
+  getHistoryIcon(type: string): string {
+    switch (type) {
+      case 'ENTREE': return '📥';
+      case 'SORTIE': return '📤';
+      case 'AJUSTEMENT': return '⚖️';
+      default: return '📝';
+    }
+  }
+
+  formatDateShort(dateString: string): string {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+    if (days === 0) {
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      if (hours === 0) {
+        const minutes = Math.floor(diff / (1000 * 60));
+        return minutes <= 1 ? 'À l\'instant' : `Il y a ${minutes} min`;
+      }
+      return `Il y a ${hours}h`;
+    } else if (days === 1) {
+      return 'Hier';
+    } else if (days < 7) {
+      return `Il y a ${days}j`;
+    } else {
+      return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+    }
   }
 
   async loadDemandes(): Promise<void> {
@@ -263,7 +368,6 @@ export class AdminDashboardCbComponent implements OnInit, AfterViewInit, OnDestr
     } catch { this.stats.pendingDemandes = 0; }
   }
 
-  // ─── Charts ───────────────────────────────────
   private initCharts(): void {
     this.initDonutChart();
     this.initBarChart();
@@ -301,11 +405,6 @@ export class AdminDashboardCbComponent implements OnInit, AfterViewInit, OnDestr
     const ctx = this.barChartRef.nativeElement.getContext('2d');
     if (!ctx) return;
 
-    // Group articles by stock
-    const stockNames = this.stocksData.slice(0, 6).map(s => s.name || `Stock ${s.id}`);
-    const stockArticleCounts = this.stocksData.slice(0, 6).map(s => s.articles?.length || 0);
-
-    // If no stock data, show stats overview
     const labels = ['Utilisateurs', 'Stocks', 'Articles', 'En attente', 'Stock Faible'];
     const data = [
       this.stats.totalUsers,
@@ -360,9 +459,29 @@ export class AdminDashboardCbComponent implements OnInit, AfterViewInit, OnDestr
     });
   }
 
-  // ─── Actions ──────────────────────────────────
-  logout(): void { this.authService.logout(); }
-  navigateTo(path: string): void { this.router.navigate([`/admin/${path}`]); }
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.sidebarOpen = false;
+  }
+
+  logout(): void {
+    this.authService.logout();
+  }
+
+  navigateTo(path: string): void {
+    if (path === 'history') {
+      this.router.navigate(['/admin/history']);
+    } else {
+      this.router.navigate([`/admin/${path}`]);
+    }
+
+    if (window.innerWidth <= 992) {
+      this.closeSidebar();
+    }
+  }
 
   getSelectValue(event: Event): string {
     return (event.target as HTMLSelectElement)?.value || '';

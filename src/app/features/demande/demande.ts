@@ -169,8 +169,14 @@ export class DemandeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   createDemande(): void {
     if (this.demandeForm.invalid) return;
+
     const { articleId, qte } = this.demandeForm.value;
-    this.demandeService.createDemande(articleId, qte).subscribe({
+
+
+    const selectedArticle = this.articles.find(a => a.id === parseInt(articleId));
+    const stockId = selectedArticle?.stock?.id;
+
+    this.demandeService.createDemande(articleId, qte, stockId).subscribe({
       next: () => {
         this.demandeForm.reset({ qte: 1 });
         this.loadMyDemandes();
