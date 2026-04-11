@@ -584,6 +584,18 @@ export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy {
 
   logout(): void {
     this.authService.logout();
-    // or this.router.navigate(['/login']);
   }
+
+  sidebarOpen = false;
+
+
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.sidebarOpen = false;
+  }
+
+
 }

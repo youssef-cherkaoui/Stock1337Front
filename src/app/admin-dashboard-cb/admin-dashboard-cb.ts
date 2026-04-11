@@ -5,6 +5,7 @@ import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import * as THREE from 'three';
 import { Chart, registerables } from 'chart.js';
+import {AdminUserStatusManagement} from '../admin-user-status-management/admin-user-status-management';
 
 Chart.register(...registerables);
 
@@ -62,7 +63,10 @@ interface HistoryStats {
 @Component({
   selector: 'app-admin-dashboard-cb',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    AdminUserStatusManagement],
   templateUrl: './admin-dashboard-cb.html',
   styleUrl: './admin-dashboard-cb.css',
 })

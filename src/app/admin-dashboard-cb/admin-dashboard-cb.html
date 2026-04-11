@@ -364,9 +364,13 @@
           </div>
 
           <!-- Low Stock Alert + Quick Actions -->
+          <!-- Right Column avec User Status -->
           <div class="right-col">
 
-            <!-- Low Stock -->
+            <!-- USER STATUS - NOUVEAU -->
+            <app-admin-user-status-management></app-admin-user-status-management>
+
+            <!-- Low Stock Alert -->
             <div class="glass-panel" *ngIf="lowStockArticles.length > 0">
               <div class="panel-header">
                 <div class="panel-title">
@@ -392,18 +396,33 @@
               <div class="actions-list">
                 <button (click)="navigateTo('stocks')" class="action-btn purple">
                   <span class="action-icon purple">📦</span>
-                  <div class="action-text"><span>Gérer Stocks</span><small>Ajouter / modifier</small></div>
-                  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                  <div class="action-text">
+                    <span>Gérer Stocks</span>
+                    <small>Ajouter / modifier</small>
+                  </div>
+                  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                  </svg>
                 </button>
                 <button (click)="navigateTo('articles')" class="action-btn emerald">
                   <span class="action-icon emerald">🛍️</span>
-                  <div class="action-text"><span>Gérer Articles</span><small>Ajouter / modifier</small></div>
-                  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                  <div class="action-text">
+                    <span>Gérer Articles</span>
+                    <small>Ajouter / modifier</small>
+                  </div>
+                  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                  </svg>
                 </button>
                 <button (click)="navigateTo('users')" class="action-btn blue">
                   <span class="action-icon blue">👥</span>
-                  <div class="action-text"><span>Utilisateurs</span><small>Gérer les comptes</small></div>
-                  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                  <div class="action-text">
+                    <span>Utilisateurs</span>
+                    <small>Gérer les comptes</small>
+                  </div>
+                  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                  </svg>
                 </button>
               </div>
             </div>

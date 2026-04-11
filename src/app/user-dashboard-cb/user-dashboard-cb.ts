@@ -178,7 +178,7 @@ export class UserDashboardCB implements OnInit, AfterViewInit, OnDestroy {
       },
       error: (err) => {
         this.saving = false;
-        // Ila baqa 403, checki l-console dial Spring Boot f IntelliJ
+
         this.formError = err.error?.message || `Erreur ${err.status}: Accès refusé`;
         console.error('Full error:', err);
       }

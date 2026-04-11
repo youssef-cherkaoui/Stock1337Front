@@ -1,0 +1,85 @@
+<div class="user-status-panel glass-panel">
+  <div class="panel-header">
+    <div class="panel-title">
+      <span class="pulse-dot" [class.online]="isConnected"></span>
+      Utilisateurs en Temps Réel
+    </div>
+    <div class="connection-badge" [class.connected]="isConnected">
+      {{ isConnected ? 'Live' : 'Reconnect...' }}
+    </div>
+  </div>
+
+  <div class="status-stats">
+    <div class="stat-box online">
+      <div class="stat-icon">🟢</div>
+      <div class="stat-info">
+        <span class="stat-number">{{ stats.online }}</span>
+        <span class="stat-label">Connectés</span>
+      </div>
+      <div class="live-indicator" *ngIf="stats.online > 0">
+        <span class="ripple"></span>
+      </div>
+    </div>
+
+    <div class="stat-box offline">
+      <div class="stat-icon">⚫</div>
+      <div class="stat-info">
+        <span class="stat-number">{{ stats.offline }}</span>
+        <span class="stat-label">Déconnectés</span>
+      </div>
+    </div>
+
+    <div class="stat-box total">
+      <div class="stat-icon">👥</div>
+      <div class="stat-info">
+        <span class="stat-number">{{ stats.total }}</span>
+        <span class="stat-label">Total</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="users-list" *ngIf="onlineUsers.length > 0">
+    <div class="list-header">
+      <span>En ligne maintenant</span>
+      <span class="time-badge">{{ currentTime | date:'HH:mm:ss' }}</span>
+    </div>
+
+    <div class="user-item" *ngFor="let user of onlineUsers.slice(0, 5); let i = index"
+         [style.animation-delay]="i * 0.1 + 's'">
+      <div class="user-avatar" [style.background]="getAvatarColor(user.name)">
+        {{ getInitials(user.name) }}
+      </div>
+      <div class="user-info">
+        <span class="user-name">{{ user.name }}</span>
+        <span class="user-time">Connecté à {{ formatTime(user.connectedAt) }}</span>
+      </div>
+      <div class="user-status-badge online">
+        <span class="dot"></span>
+        Online
+      </div>
+    </div>
+
+    <div class="more-users" *ngIf="onlineUsers.length > 5">
+      +{{ onlineUsers.length - 5 }} autres utilisateurs...
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="onlineUsers.length === 0 && !loading">
+    <div class="empty-icon">😴</div>
+    <p>Aucun utilisateur connecté</p>
+  </div>
+
+  <div class="recent-activity" *ngIf="recentActivity.length > 0">
+    <div class="list-header">Activité récente</div>
+    <div class="activity-item" *ngFor="let activity of recentActivity.slice(0, 3)">
+      <span class="activity-icon" [class]="activity.type">
+        {{ activity.type === 'connect' ? '🟢' : '🔴' }}
+      </span>
+      <span class="activity-text">
+        <strong>{{ activity.userName }}</strong>
+        {{ activity.type === 'connect' ? 's\'est connecté' : 's\'est déconnecté' }}
+      </span>
+      <span class="activity-time">{{ activity.time }}</span>
+    </div>
+  </div>
+</div>

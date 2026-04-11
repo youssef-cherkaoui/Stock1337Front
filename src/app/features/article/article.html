@@ -1,22 +1,25 @@
 <div class="articles-wrapper">
   <canvas #threeCanvas class="three-canvas"></canvas>
 
+  <!-- Sidebar overlay (mobile) -->
+  <div class="sidebar-overlay" [class.open]="sidebarOpen" (click)="closeSidebar()"></div>
+
   <!-- Sidebar -->
-  <aside class="sidebar">
+  <aside class="sidebar" [class.open]="sidebarOpen">
     <div class="sidebar-logo">
       <div class="logo-badge">1337</div>
       <span class="logo-text">STOCK</span>
     </div>
 
     <nav class="sidebar-nav">
-      <button class="nav-item" routerLink="/admin/dashboard-admin"><span>Dashboard</span></button>
-      <button class="nav-item active" routerLink="/articles">
+      <button class="nav-item" routerLink="/admin/dashboard-admin" (click)="closeSidebar()"><span>Dashboard</span></button>
+      <button class="nav-item active" routerLink="/articles" (click)="closeSidebar()">
         <span>Articles</span>
         <span class="nav-badge" *ngIf="lowStockCount > 0" [class.rose]="lowStockCount > 0">{{ lowStockCount }}</span>
       </button>
-      <button class="nav-item" routerLink="/stocks"><span>Stocks</span></button>
-      <button class="nav-item" routerLink="/admin/departements"><span>Départements</span></button>
-      <button class="nav-item" routerLink="/demandes" *ngIf="isAdmin"><span>Demandes</span></button>
+      <button class="nav-item" routerLink="/stocks" (click)="closeSidebar()"><span>Stocks</span></button>
+      <button class="nav-item" routerLink="/admin/departements" (click)="closeSidebar()"><span>Départements</span></button>
+      <button class="nav-item" routerLink="/demandes" *ngIf="isAdmin" (click)="closeSidebar()"><span>Demandes</span></button>
     </nav>
 
     <div class="sidebar-footer">
@@ -27,7 +30,8 @@
       </div>
       <button class="sidebar-logout" (click)="logout()" title="Déconnexion">
         <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
         </svg>
       </button>
     </div>
@@ -37,8 +41,16 @@
   <div class="main-area">
     <header class="topbar">
       <div class="topbar-left">
-        <button (click)="goToDashboard()" class="back-btn" title="Retour au Dashboard">
-          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <!-- Mobile: menu toggle -->
+        <button class="menu-toggle" (click)="toggleSidebar()" aria-label="Menu">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+
+        <!-- Back button -->
+        <button (click)="goToDashboard()" class="back-btn" title="Retour Dashboard">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
           </svg>
         </button>
@@ -48,6 +60,7 @@
           <p>{{ articles.length }} articles enregistrés</p>
         </div>
       </div>
+
       <div class="topbar-right">
         <span class="topbar-time">{{ currentTime }}</span>
         <div class="topbar-status">
@@ -58,19 +71,17 @@
           <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
           </svg>
-          Nouvel Article
+          <span>Nouvel Article</span>
         </button>
       </div>
     </header>
 
     <main class="main-content">
-      <!-- Loading -->
       <div *ngIf="loading" class="loading-state">
         <div class="spinner"></div>
         <span>Chargement des articles...</span>
       </div>
 
-      <!-- Charts Row -->
       <div class="charts-row" *ngIf="!loading">
         <div class="chart-card">
           <div class="chart-header">
@@ -78,21 +89,15 @@
             <span class="chart-sub">Normal vs Faible</span>
           </div>
           <div class="donut-wrap">
-            <canvas #donutChart width="180" height="180"></canvas>
+            <canvas #donutChart width="160" height="160"></canvas>
             <div class="donut-center">
               <span class="donut-val" [class.warning]="healthPct < 80">{{ healthPct }}%</span>
               <span class="donut-lbl">{{ healthPct >= 80 ? 'OK' : 'Alerte' }}</span>
             </div>
           </div>
           <div class="donut-legend">
-            <div class="legend-item">
-              <span class="ldot emerald"></span><span>Normal</span>
-              <strong>{{ articles.length - lowStockCount }}</strong>
-            </div>
-            <div class="legend-item">
-              <span class="ldot rose"></span><span>Faible</span>
-              <strong>{{ lowStockCount }}</strong>
-            </div>
+            <div class="legend-item"><span class="ldot emerald"></span><span>Normal</span><strong>{{ articles.length - lowStockCount }}</strong></div>
+            <div class="legend-item"><span class="ldot rose"></span><span>Faible</span><strong>{{ lowStockCount }}</strong></div>
           </div>
         </div>
 
@@ -109,39 +114,24 @@
           <div class="mini-stats">
             <div class="mini-stat">
               <div class="mini-icon emerald">🛍️</div>
-              <div class="mini-body">
-                <span class="mini-val">{{ articles.length }}</span>
-                <span class="mini-lbl">Articles</span>
-              </div>
+              <div class="mini-body"><span class="mini-val">{{ articles.length }}</span><span class="mini-lbl">Articles</span></div>
             </div>
             <div class="mini-stat">
               <div class="mini-icon purple">📦</div>
-              <div class="mini-body">
-                <span class="mini-val">{{ stocks.length }}</span>
-                <span class="mini-lbl">Stocks</span>
-              </div>
+              <div class="mini-body"><span class="mini-val">{{ stocks.length }}</span><span class="mini-lbl">Stocks</span></div>
             </div>
             <div class="mini-stat">
               <div class="mini-icon blue">🏢</div>
-              <div class="mini-body">
-                <span class="mini-val">{{ departements.length }}</span>
-                <span class="mini-lbl">Départements</span>
-              </div>
+              <div class="mini-body"><span class="mini-val">{{ departements.length }}</span><span class="mini-lbl">Départements</span></div>
             </div>
             <div class="mini-stat" [class.alert]="lowStockCount > 0">
-              <div class="mini-icon" [class.rose]="lowStockCount > 0" [class.emerald]="lowStockCount === 0">
-                {{ lowStockCount > 0 ? '⚠️' : '✅' }}
-              </div>
-              <div class="mini-body">
-                <span class="mini-val" [class.rose]="lowStockCount > 0">{{ lowStockCount }}</span>
-                <span class="mini-lbl">Alertes</span>
-              </div>
+              <div class="mini-icon" [class.rose]="lowStockCount > 0" [class.emerald]="lowStockCount === 0">{{ lowStockCount > 0 ? '⚠️' : '✅' }}</div>
+              <div class="mini-body"><span class="mini-val" [class.rose]="lowStockCount > 0">{{ lowStockCount }}</span><span class="mini-lbl">Alertes</span></div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Line Chart -->
       <div class="chart-card line-card" *ngIf="isAdmin && !loading">
         <div class="chart-header">
           <span class="chart-title">Évolution du Stock</span>
@@ -157,11 +147,10 @@
         </div>
       </div>
 
-      <!-- Filters -->
       <div class="filters-bar" *ngIf="!loading">
         <div class="filter-group">
           <div class="filter-wrap">
-            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="filter-icon">
+            <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="filter-icon">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
             </svg>
             <select (change)="onStockFilter($event)" class="filter-select">
@@ -170,7 +159,7 @@
             </select>
           </div>
           <div class="filter-wrap">
-            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="filter-icon">
+            <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="filter-icon">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
             </svg>
             <select (change)="onDeptFilter($event)" class="filter-select">
@@ -185,7 +174,7 @@
         </div>
       </div>
 
-      <!-- Add / Edit Form Modal -->
+      <!-- Add / Edit Modal -->
       <div *ngIf="showAddForm && isAdmin" class="modal-overlay" (click)="closeForm()">
         <div class="add-form-card" (click)="$event.stopPropagation()">
           <div class="form-glow"></div>
@@ -194,22 +183,10 @@
             <button (click)="closeForm()" class="close-btn">✕</button>
           </div>
           <form [formGroup]="articleForm" (ngSubmit)="submitForm()" class="form-grid">
-            <div class="field">
-              <label>Nom *</label>
-              <input formControlName="name" placeholder="Nom de l'article"/>
-            </div>
-            <div class="field">
-              <label>Description</label>
-              <input formControlName="description" placeholder="Description"/>
-            </div>
-            <div class="field">
-              <label>Quantité *</label>
-              <input type="number" formControlName="quantity" placeholder="0"/>
-            </div>
-            <div class="field">
-              <label>Seuil min</label>
-              <input type="number" formControlName="minThreshold" placeholder="5"/>
-            </div>
+            <div class="field"><label>Nom *</label><input formControlName="name" placeholder="Nom de l'article"/></div>
+            <div class="field"><label>Description</label><input formControlName="description" placeholder="Description"/></div>
+            <div class="field"><label>Quantité *</label><input type="number" formControlName="quantity" placeholder="0"/></div>
+            <div class="field"><label>Seuil min</label><input type="number" formControlName="minThreshold" placeholder="5"/></div>
             <div class="field">
               <label>Stock *</label>
               <div class="select-wrap">
@@ -217,9 +194,7 @@
                   <option value="">Sélectionner</option>
                   <option *ngFor="let stock of stocks" [value]="stock.id">{{ stock.name }}</option>
                 </select>
-                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="sel-arrow">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                </svg>
+                <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="sel-arrow"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
               </div>
             </div>
             <div class="field">
@@ -229,30 +204,23 @@
                   <option value="">Sélectionner</option>
                   <option *ngFor="let dept of departements" [value]="dept.id">{{ dept.name }}</option>
                 </select>
-                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="sel-arrow">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                </svg>
+                <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="sel-arrow"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
               </div>
             </div>
             <div class="form-actions">
-              <button type="submit" [disabled]="articleForm.invalid" class="btn-submit">
-                {{ editingArticle ? 'Enregistrer' : 'Ajouter' }}
-              </button>
+              <button type="submit" [disabled]="articleForm.invalid" class="btn-submit">{{ editingArticle ? 'Enregistrer' : 'Ajouter' }}</button>
               <button type="button" (click)="closeForm()" class="btn-cancel">Annuler</button>
             </div>
           </form>
         </div>
       </div>
 
-      <!-- Delete Confirm Modal -->
+      <!-- Delete Modal -->
       <div *ngIf="deletingArticle" class="modal-overlay" (click)="cancelDelete()">
         <div class="delete-modal" (click)="$event.stopPropagation()">
           <div class="delete-icon">🗑️</div>
           <h3>Supprimer l'article ?</h3>
-          <p>
-            <strong>{{ deletingArticle.name }}</strong> sera supprimé définitivement.
-            Cette action est irréversible.
-          </p>
+          <p><strong>{{ deletingArticle.name }}</strong> sera supprimé définitivement. Cette action est irréversible.</p>
           <div class="delete-actions">
             <button (click)="confirmDelete()" class="btn-delete-confirm" [disabled]="deleteLoading">
               <span *ngIf="!deleteLoading">Supprimer</span>
@@ -268,14 +236,8 @@
         <table class="articles-table">
           <thead>
           <tr>
-            <th>ID</th>
-            <th>Article</th>
-            <th>Stock</th>
-            <th>Département</th>
-            <th>Qté</th>
-            <th>Min</th>
-            <th>Statut</th>
-            <th>Action</th>
+            <th>ID</th><th>Article</th><th>Stock</th><th>Département</th>
+            <th>Qté</th><th>Min</th><th>Statut</th><th>Action</th>
           </tr>
           </thead>
           <tbody>
@@ -306,8 +268,7 @@
                   <div class="qty-mini-fill"
                        [class.emerald]="article.minThreshold === undefined || article.quantity > article.minThreshold"
                        [class.rose]="article.minThreshold !== undefined && article.quantity <= article.minThreshold"
-                       [style.width.%]="getQtyPct(article)">
-                  </div>
+                       [style.width.%]="getQtyPct(article)"></div>
                 </div>
               </div>
             </td>
@@ -320,22 +281,16 @@
                 </span>
             </td>
             <td class="td-actions">
-              <!-- Non-admin: demander -->
-              <button *ngIf="!isAdmin" (click)="demandeArticle(article)" class="btn-demande-sm">
-                Demander
-              </button>
-              <!-- Admin: edit + delete -->
+              <button *ngIf="!isAdmin" (click)="demandeArticle(article)" class="btn-demande-sm">Demander</button>
               <div *ngIf="isAdmin" class="action-btns">
                 <button (click)="openEditForm(article)" class="btn-icon-edit" title="Modifier">
-                  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                  <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                   </svg>
                 </button>
                 <button (click)="openDeleteConfirm(article)" class="btn-icon-delete" title="Supprimer">
-                  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                  <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                   </svg>
                 </button>
               </div>
@@ -345,7 +300,6 @@
         </table>
       </div>
 
-      <!-- Empty -->
       <div *ngIf="articles.length === 0 && !loading" class="empty-state">
         <div class="empty-icon">📭</div>
         <h3>Aucun article</h3>

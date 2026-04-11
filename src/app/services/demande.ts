@@ -23,7 +23,7 @@ export class DemandeService {
       params = params.set('stockId', stockId.toString());
     }
 
-    return this.http.post(`${this.apiUrl}/demandes/create`, null, { params });
+    return this.http.post(`${this.apiUrl}/create`, null, { params });
   }
 
   getMyDemandes(): Observable<Demande[]> {

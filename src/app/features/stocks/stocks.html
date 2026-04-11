@@ -1,45 +1,56 @@
-<div class="stocks-container">
+<div class="stocks-wrapper">
+  <canvas #threeCanvas class="three-canvas"></canvas>
+
   <!-- Navbar -->
-  <nav class="glass-nav px-8 py-4 flex justify-between items-center sticky top-0 z-50">
-    <div class="flex items-center gap-4">
-      <button routerLink="/admin/dashboard-admin" class="text-gray-400 hover:text-white transition-colors">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-        </svg>
+  <nav class="glass-nav">
+    <div class="nav-content">
+      <div class="nav-left">
+        <button (click)="goToDashboard()" class="back-btn" title="Retour au Dashboard">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+          </svg>
+        </button>
+        <h1 class="nav-title">📦 Gestion des Stocks</h1>
+      </div>
+      <button *ngIf="isAdmin" (click)="showAddForm = !showAddForm" class="glow-button">
+        <span *ngIf="!showAddForm">+ Nouveau Stock</span>
+        <span *ngIf="showAddForm">✕ Fermer</span>
       </button>
-      <h1 class="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-purple-500">
-        Stocks
-      </h1>
     </div>
-    <button *ngIf="isAdmin" (click)="showAddForm = !showAddForm"
-            class="glow-button px-6 py-3 rounded-xl bg-gradient-to-r from-violet-500 to-purple-500 text-black font-bold">
-      {{ showAddForm ? 'Fermer' : '+ Nouveau Stock' }}
-    </button>
   </nav>
 
-  <div class="p-8 max-w-[1920px] mx-auto">
+  <div class="main-content">
     <!-- Add/Edit Stock Form -->
-    <div *ngIf="showAddForm && isAdmin" class="glass-card p-8 rounded-3xl mb-8 border border-violet-500/30 bg-violet-500/5">
-      <h3 class="text-2xl font-bold mb-6 text-violet-400">
-        {{ editingStock ? 'Modifier Stock' : 'Nouveau Stock' }}
+    <div *ngIf="showAddForm && isAdmin" class="form-card">
+      <h3 class="form-title">
+        {{ editingStock ? '✏️ Modifier Stock' : '➕ Nouveau Stock' }}
       </h3>
-      <form [formGroup]="stockForm" (ngSubmit)="createStock()" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <input formControlName="name" placeholder="Nom du stock"
-               class="bg-black/30 border border-white/10 rounded-xl px-4 py-4 text-white placeholder-gray-500 focus:border-violet-500/50 focus:outline-none">
-        <input formControlName="localisation" placeholder="Localisation"
-               class="bg-black/30 border border-white/10 rounded-xl px-4 py-4 text-white placeholder-gray-500 focus:border-violet-500/50 focus:outline-none">
-        <select formControlName="departementId"
-                class="bg-black/30 border border-white/10 rounded-xl px-4 py-4 text-white focus:border-violet-500/50 focus:outline-none appearance-none">
-          <option value="">Sélectionner Département</option>
-          <option *ngFor="let dept of departements" [value]="dept.id">{{ dept.name }}</option>
-        </select>
-        <div class="md:col-span-3 flex gap-4">
-          <button type="submit" [disabled]="stockForm.invalid"
-                  class="flex-1 bg-gradient-to-r from-violet-500 to-purple-500 text-black font-bold py-4 rounded-xl hover:shadow-lg hover:shadow-violet-500/25 transition-all disabled:opacity-50">
+      <form [formGroup]="stockForm" (ngSubmit)="createStock()" class="form-grid">
+        <div class="form-field">
+          <label>Nom du stock *</label>
+          <input formControlName="name" placeholder="Ex: Stock Principal">
+        </div>
+        <div class="form-field">
+          <label>Localisation *</label>
+          <input formControlName="localisation" placeholder="Ex: Bâtiment A">
+        </div>
+        <div class="form-field">
+          <label>Département *</label>
+          <div class="select-wrap">
+            <select formControlName="departementId">
+              <option value="">Sélectionner</option>
+              <option *ngFor="let dept of departements" [value]="dept.id">{{ dept.name }}</option>
+            </select>
+            <svg class="select-arrow" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" [disabled]="stockForm.invalid" class="btn-submit">
             {{ editingStock ? 'Mettre à jour' : 'Créer Stock' }}
           </button>
-          <button type="button" (click)="cancelEdit()"
-                  class="px-8 py-4 rounded-xl border border-white/20 text-white hover:bg-white/10 transition-colors">
+          <button type="button" (click)="cancelEdit()" class="btn-cancel">
             Annuler
           </button>
         </div>
@@ -47,64 +58,57 @@
     </div>
 
     <!-- Stocks Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div *ngFor="let stock of stocks"
-           class="glass-card group relative overflow-hidden rounded-3xl p-8 border border-white/5 hover:border-violet-500/30 transition-all duration-500">
+    <div class="stocks-grid" *ngIf="stocks.length > 0">
+      <div *ngFor="let stock of stocks; let i = index" class="stock-card" [style.animation-delay]="i * 0.1 + 's'">
+        <div class="card-glow"></div>
 
-        <div class="absolute inset-0 bg-gradient-to-br from-violet-500/0 to-purple-500/0 group-hover:from-violet-500/10 group-hover:to-purple-500/10 transition-all duration-500"></div>
+        <!-- MODIFIÉ: Seulement l'icône, sans le count -->
+        <div class="card-header">
+          <div class="stock-icon">📦</div>
+        </div>
 
-        <div class="relative z-10">
-          <div class="flex items-start justify-between mb-6">
-            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center text-black text-2xl font-black transform group-hover:rotate-12 transition-transform duration-500">
-              📦
-            </div>
-            <div class="text-right">
-              <div class="text-3xl font-black text-white">{{ stock.articles?.length || 0 }}</div>
-              <div class="text-xs font-bold tracking-widest uppercase text-gray-500">Articles</div>
-            </div>
-          </div>
+        <h3 class="stock-name">{{ stock.name }}</h3>
 
-          <h3 class="text-2xl font-bold mb-2 group-hover:text-violet-400 transition-colors">{{ stock.name }}</h3>
-          <p class="text-gray-400 mb-4 flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-            </svg>
-            {{ stock.localisation }}
-          </p>
+        <div class="stock-location">
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          <span>{{ stock.localisation }}</span>
+        </div>
 
-          <div class="flex items-center gap-2 mb-6">
-            <span class="px-3 py-1 rounded-full bg-violet-500/20 text-violet-400 text-xs font-bold uppercase tracking-wider">
-              {{ stock.departement?.name || 'N/A' }}
-            </span>
-          </div>
+        <div class="stock-dept">
+          <span class="dept-badge">{{ stock.departement?.name || 'N/A' }}</span>
+        </div>
 
-          <div class="flex gap-3">
-            <button routerLink="/articles" [queryParams]="{ stockId: stock.id }"
-                    class="flex-1 py-3 rounded-xl bg-violet-500/20 text-violet-400 font-bold text-sm hover:bg-violet-500/30 transition-colors">
-              Voir Articles
-            </button>
-            <button *ngIf="isAdmin" (click)="editStock(stock)"
-                    class="px-4 py-3 rounded-xl border border-white/20 text-white hover:bg-white/10 transition-colors">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+        <div class="card-actions">
+          <button routerLink="/articles" [queryParams]="{ stockId: stock.id }" class="btn-view">
+            Voir Articles
+          </button>
+          <ng-container *ngIf="isAdmin">
+            <button (click)="editStock(stock)" class="btn-edit" title="Modifier">
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
               </svg>
             </button>
-            <button *ngIf="isAdmin" (click)="deleteStock(stock.id)"
-                    class="px-4 py-3 rounded-xl border border-rose-500/30 text-rose-400 hover:bg-rose-500/20 transition-colors">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+            <button (click)="deleteStock(stock.id)" class="btn-delete" title="Supprimer">
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
               </svg>
             </button>
-          </div>
+          </ng-container>
         </div>
       </div>
     </div>
 
     <!-- Empty State -->
-    <div *ngIf="stocks.length === 0" class="text-center py-20">
-      <div class="text-6xl mb-4">🏭</div>
-      <h3 class="text-2xl font-bold text-gray-400">Aucun stock trouvé</h3>
+    <div *ngIf="stocks.length === 0" class="empty-state">
+      <div class="empty-icon">🏭</div>
+      <h3>Aucun stock trouvé</h3>
+      <p *ngIf="isAdmin">Créez votre premier stock pour commencer</p>
+      <button *ngIf="isAdmin" (click)="showAddForm = true" class="btn-add-first">
+        + Créer un stock
+      </button>
     </div>
   </div>
 </div>
